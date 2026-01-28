@@ -1,0 +1,32 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white text-center py-3">
+                <h4 class="mb-0">ĐĂNG NHẬP</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Tên đăng nhập</label>
+                        <input type="text" name="username" class="form-control" placeholder="Nhập username..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu</label>
+                        <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu..." required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-dark">Đăng nhập</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <small>Chưa có tài khoản? <a href="{% url 'register' %}">Đăng ký ngay</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

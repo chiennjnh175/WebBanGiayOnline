@@ -1,0 +1,52 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h4 class="mb-0">TẠO TÀI KHOẢN MỚI</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger">Vui lòng kiểm tra lại thông tin.</div>
+                    {% endif %}
+
+                    <div class="django-form-custom">
+                        {{ form.as_p }}
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary">Xác nhận đăng ký</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <small>Đã có tài khoản? <a href="{% url 'login' %}">Quay lại đăng nhập</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Làm cho các ô input của Django dài ra chuẩn Bootstrap */
+    .django-form-custom input {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        margin-bottom: 15px;
+    }
+    .django-form-custom .helptext {
+        font-size: 0.8rem;
+        color: #6c757d;
+        display: block;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
