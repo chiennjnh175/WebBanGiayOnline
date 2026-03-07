@@ -8,6 +8,7 @@
 
 - Đăng ký, Đăng nhập: Người dùng có thể tạo tài khoản để đăng nhập vào website. Admin có quyền thêm, sửa, xoá thông tin người dùng
 - Quản lý sản phẩm: Admin có quyền thêm, sửa, xoá sản phẩm, thể loại hiển thị trên trang chủ
+- Hiển thị giày theo thương hiệu
 
 ### Hướng dẫn cài đặt
 - Clone dự án 
