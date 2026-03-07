@@ -76,8 +76,13 @@ WSGI_APPLICATION = 'djangoWeb.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'mssql',
+        'NAME': 'ZhopeeDB', # Tên database bạn vừa tạo ở Bước 1
+        'HOST': 'localhost', # Nếu SQL Server cài trên máy bạn. (Lưu ý: Nếu bạn dùng bản Express, có thể phải đổi thành 'localhost\\SQLEXPRESS')
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server', # Trình điều khiển mặc định của Windows
+            'extra_params': 'Trusted_Connection=yes;', # Dùng quyền Windows để đăng nhập, không cần gõ User/Pass
+        },
     }
 }
 
