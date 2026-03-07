@@ -6,7 +6,7 @@
         <div class="d-flex gap-2">
             <div class="dropdown dropdown-hover">
                 <button class="btn btn-dark h-100 px-4 dropdown-toggle" type="button" id="brandMenu">
-                    Brand
+                    Category
                 </button>
                 <ul class="dropdown-menu shadow">
                     {% for category in categories %}
@@ -18,7 +18,7 @@
             </div>
 
             <form class="d-flex flex-grow-1" method="GET" action="{% url 'home' %}">
-                <input class="form-control me-2 border-dark" type="search" name="q" value="{{ request.GET.q }}" placeholder="Nhập tên giày hoặc thương hiệu bạn muốn tìm...">
+                <input class="form-control me-2 border-dark" type="search" name="q" value="{{ request.GET.q }}" placeholder="Nhập tên sản phẩm hoặc thương hiệu...">
                 <button class="btn btn-outline-dark px-4" type="submit">Tìm</button>
             </form>
         </div>
@@ -38,22 +38,20 @@
             
             <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}#{% endif %}">
                 {% if product.image %}
-                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: cover;">
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover;">
                 {% else %}
-                    <img src="https://via.placeholder.com/300x180" class="card-img-top" alt="No image">
+                    <img src="https://via.placeholder.com/300x300" class="card-img-top" alt="No image" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover;">
                 {% endif %}
             </a>
             
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">{{ product.name }}</h5>
-                <p class="text-danger fw-bold mb-1">{{ product.price }} VNĐ</p>
-                <p class="card-text small text-muted mb-2">Thương hiệu: {{ product.category.name }}</p>
-                
-                <p class="card-text small flex-grow-1">{{ product.description|truncatewords:10 }}</p>
-                
+                <p class="text-danger fw-bold mb-1">{{ product.price }}$</p>
+                <p class="card-text small text-muted mb-2">Thương hiệu: {{ product.brand }}</p>
                 <div class="d-flex gap-2 mt-auto">
                     <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}#{% endif %}" class="btn btn-outline-dark btn-sm w-50">Chi tiết</a>
-                    <button class="btn btn-dark btn-sm w-50">Thêm vào giỏ</button>
+                    
+                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-dark btn-sm w-50">Thêm vào giỏ</a>
                 </div>
             </div>
             

@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from .forms import RegistrationForm
-from .models import Product, Category, Profile
+from .models import Product, Category, Profile, Cart, CartItem
 from .forms import UserUpdateForm, ProfileUpdateForm
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required 
@@ -93,5 +93,18 @@ def product_detail(request, slug):
     }
     return render(request, 'store/product_detail.html', context)
 
-
-
+@login_required(login_url='login') 
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product)
+    
+    if not item_created:
+        cart_item.quantity += 1
+        cart_item.save()
+        
+    messages.success(request, f'Đã thêm {product.name} vào giỏ!')
+    url_truoc_do = request.META.get('HTTP_REFERER')
+    if url_truoc_do:
+        return redirect(url_truoc_do)
+    return redirect('home')
