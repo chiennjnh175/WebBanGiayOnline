@@ -108,3 +108,17 @@ def add_to_cart(request, product_id):
     if url_truoc_do:
         return redirect(url_truoc_do)
     return redirect('home')
+
+
+@login_required(login_url='login')
+def cart_detail(request):
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    items = cart.items.all()
+    
+    total_cart_price = sum(item.total_price for item in items)
+    
+    context = {
+        'items': items,
+        'total_cart_price': total_cart_price,
+    }
+    return render(request, 'store/cart.html', context)
