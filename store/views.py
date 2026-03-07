@@ -6,23 +6,20 @@ from .forms import RegistrationForm
 from .models import Product, Category, Profile
 from .forms import UserUpdateForm, ProfileUpdateForm
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required 
 
-from django.contrib.auth.decorators import login_required # Thêm dòng này ở trên cùng
-
-# 1. Hàm home trả lại như cũ
 def home(request, category_slug=None):
     products = Product.objects.all()
     categories = Category.objects.all()
     
-    # 1. Nếu click vào một thương hiệu trên menu
+
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(category=category)
     
-    # 2. Nếu người dùng nhập chữ vào ô tìm kiếm
+
     query = request.GET.get('q')
     if query:
-        # Lọc ra sản phẩm có Tên chứa từ khóa HOẶC Tên thương hiệu (category) chứa từ khóa
         products = products.filter(
             Q(name__icontains=query) | Q(category__name__icontains=query)
         )
@@ -34,8 +31,7 @@ def home(request, category_slug=None):
     return render(request, 'store/home.html', context)
 
 
-# 2. Thêm hàm mới để xử lý trang Profile
-@login_required(login_url='login') # Bắt buộc phải đăng nhập mới vào được hàm này
+@login_required(login_url='login')
 def profile_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
     
@@ -47,7 +43,7 @@ def profile_view(request):
             user_form.save()
             profile_form.save()
             messages.success(request, 'Thông tin của bạn đã được cập nhật thành công!')
-            return redirect('profile') # Lưu xong thì load lại chính trang profile
+            return redirect('profile')
     else:
         user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileUpdateForm(instance=profile)
@@ -90,7 +86,6 @@ def logout_view(request):
     return redirect('home')
 
 def product_detail(request, slug):
-    # Tìm sản phẩm theo ID, nếu không thấy sẽ báo lỗi 404
     product = get_object_or_404(Product, slug=slug)
     
     context = {
