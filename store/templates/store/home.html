@@ -1,12 +1,11 @@
 {% extends 'store/base.html' %}
-
-{% block content %}
+{% load humanize %} {% block content %}
 <div class="row mb-5">
     <div class="col-md-8 mx-auto">
         <div class="d-flex gap-2">
             <div class="dropdown dropdown-hover">
                 <button class="btn btn-dark h-100 px-4 dropdown-toggle" type="button" id="brandMenu">
-                    Category
+                    Thể loại
                 </button>
                 <ul class="dropdown-menu shadow">
                     {% for category in categories %}
@@ -18,7 +17,7 @@
             </div>
 
             <form class="d-flex flex-grow-1" method="GET" action="{% url 'home' %}">
-                <input class="form-control me-2 border-dark" type="search" name="q" value="{{ request.GET.q }}" placeholder="Nhập tên sản phẩm hoặc thương hiệu...">
+                <input class="form-control me-2 border-dark" type="search" name="q" value="{{ request.GET.q }}" placeholder="...">
                 <button class="btn btn-outline-dark px-4" type="submit">Tìm</button>
             </form>
         </div>
@@ -34,21 +33,23 @@
     
     {% for product in products %}
     <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100 border-0">
+        <div class="card shadow-sm h-100 border-0 text-center pt-2">
             
             <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}#{% endif %}">
                 {% if product.image %}
-                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover;">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px; margin: 15px auto 0; display: block;">
                 {% else %}
-                    <img src="https://via.placeholder.com/300x300" class="card-img-top" alt="No image" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover;">
+                    <img src="https://via.placeholder.com/150x150" alt="No image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px; margin: 15px auto 0; display: block;">
                 {% endif %}
             </a>
             
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title">{{ product.name }}</h5>
-                <p class="text-danger fw-bold mb-1">{{ product.price }}$</p>
-                <p class="card-text small text-muted mb-2">Thương hiệu: {{ product.brand }}</p>
-                <div class="d-flex gap-2 mt-auto">
+            <div class="card-body d-flex flex-column align-items-center">
+                <h5 class="card-title text-truncate w-100">{{ product.name }}</h5>
+                
+                <p class="text-danger fs-5 fw-bold mb-1">${{ product.price|intcomma }}</p>
+                <p class="card-text small text-muted mb-3">Thương hiệu: {{ product.brand }}</p>
+                
+                <div class="d-flex gap-2 mt-auto w-100">
                     <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}#{% endif %}" class="btn btn-outline-dark btn-sm w-50">Chi tiết</a>
                     
                     <a href="{% url 'add_to_cart' product.id %}" class="btn btn-dark btn-sm w-50">Thêm vào giỏ</a>

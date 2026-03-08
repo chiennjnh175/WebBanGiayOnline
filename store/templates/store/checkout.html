@@ -1,0 +1,64 @@
+{% extends 'store/base.html' %} 
+
+{% block content %}
+
+{% if order_completed %}
+    <div style="text-align: center; margin-top: 50px; border: 1px solid #4CAF50; padding: 30px; border-radius: 8px; background-color: #f9fff9;">
+        <h2 style="color: #4CAF50;">🎉 Cảm ơn bạn đã đặt hàng!</h2>
+        <p>Đơn hàng <strong>#{{ order.id }}</strong> của bạn đã được ghi nhận.</p>
+        <p>Tổng thanh toán: <strong>{{ order.total_amount }}đ</strong></p>
+        <p>Chúng tôi sẽ sớm liên hệ tới số <strong>{{ order.phone }}</strong> để giao hàng.</p>
+        <br>
+        <a href="{% url 'home' %}" style="display: inline-block; padding: 10px 20px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 5px;">
+            Tiếp tục mua sắm
+        </a>
+    </div>
+
+{% else %}
+    <h2>Thanh toán đơn hàng</h2>
+
+    <div style="display: flex; gap: 40px;">
+        <div style="flex: 1;">
+            <h3>Thông tin giao hàng</h3>
+            <form method="POST" action="{% url 'checkout' %}">
+                {% csrf_token %}
+                
+                <div style="margin-bottom: 15px;">
+                    <label>Họ và tên người nhận:</label><br>
+                    <input type="text" name="customer_name" required style="width: 100%;" 
+                           value="{{ request.user.first_name }} {{ request.user.last_name }}">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label>Số điện thoại:</label><br>
+                    <input type="text" name="phone" required style="width: 100%;" 
+                           value="{{ profile.phone|default_if_none:'' }}">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label>Địa chỉ giao hàng:</label><br>
+                    <textarea name="address" required style="width: 100%;" rows="3">{{ profile.address|default_if_none:'' }}</textarea>
+                </div>
+                
+                <button type="submit" style="padding: 10px 20px; background-color: green; color: white; border: none; cursor: pointer; border-radius: 5px;">
+                    Xác nhận Đặt hàng
+                </button>
+            </form>
+        </div>
+
+        <div style="flex: 1; border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
+            <h3>Đơn hàng của bạn</h3>
+            <ul style="list-style-type: none; padding: 0;">
+                {% for item in cart_items %}
+                    <li style="margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
+                        <strong>{{ item.product.name }}</strong> <br>
+                        Số lượng: {{ item.quantity }} | Giá: {{ item.total_price }}đ
+                    </li>
+                {% endfor %}
+            </ul>
+            <h4 style="color: red; text-align: right;">Tổng cộng: {{ total_amount }}đ</h4>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

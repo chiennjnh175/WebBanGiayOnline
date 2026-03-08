@@ -43,13 +43,27 @@
                                         <td class="text-center">${{ item.product.price|intcomma }}</td>
                                         
                                         <td class="text-center">
-                                            <span class="badge bg-secondary px-3 py-2 fs-6">{{ item.quantity }}</span>
+                                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                                <a href="{% url 'decrease_cart_item' item.product.id %}" class="btn btn-sm btn-outline-secondary px-2" style="border-radius: 8px;">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
+                                                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                                                    </svg>
+                                                </a>
+        
+                                                <span class="fw-bold fs-5 px-2">{{ item.quantity }}</span>
+        
+                                                <a href="{% url 'increase_cart_item' item.product.id %}" class="btn btn-sm btn-outline-secondary px-2" style="border-radius: 8px;">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                                                    </svg>
+                                                </a>
+                                            </div>
                                         </td>
                                         
                                         <td class="text-center text-danger fw-bold">${{ item.total_price|intcomma }}</td>
                                         
                                         <td class="pe-4 text-end">
-                                            <a href="#" class="btn btn-sm btn-outline-danger" title="Xóa khỏi giỏ hàng">
+                                            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-outline-danger" title="Xóa khỏi giỏ hàng">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
                                                     <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.813 1H3.188l.836 10.433A1 1 0 0 0 5.02 15h5.96a1 1 0 0 0 .997-.92l.836-10.433ZM5.5 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5ZM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5Zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0Z"/>
                                                 </svg> Xóa
@@ -71,7 +85,7 @@
                         
                         <div class="d-flex justify-content-between mb-3">
                             <span class="text-muted">Tổng số lượng:</span>
-                            <span class="fw-bold">{{ items|length }} sản phẩm</span>
+                            <span class="fw-bold">{{ cart_count }} sản phẩm</span>
                         </div>
                         
                         <div class="d-flex justify-content-between mb-4">
@@ -84,7 +98,7 @@
                             <span class="fs-4 fw-bold text-danger">${{ total_cart_price|intcomma }}</span>
                         </div>
                         
-                        <a href="#" class="btn btn-dark w-100 py-2 fs-5 text-uppercase fw-bold">Tiến hành thanh toán</a>
+                        <a href="{% url 'checkout' %}" class="btn btn-dark w-100 py-2 fs-5 text-uppercase fw-bold">Tiến hành thanh toán</a>
                     </div>
                 </div>
             </div>
@@ -96,5 +110,38 @@
             <a href="{% url 'home' %}" class="btn btn-primary px-4 py-2 fw-bold">Về trang chủ mua sắm</a>
         </div>
     {% endif %}
+    <hr style="margin: 40px 0;">
+<h3>Lịch sử đơn hàng của bạn</h3>
+
+{% if orders %}
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th style="padding: 10px; border: 1px solid #ddd;">Mã đơn</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Ngày đặt</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Tổng tiền</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>#{{ order.id }}</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ order.total_amount }}đ</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">
+                    {% if order.status == 'Pending' %} <span style="color: #ff9800;">Đang chờ xử lý</span>
+                    {% elif order.status == 'Shipping' %} <span style="color: #2196f3;">Đang giao hàng</span>
+                    {% elif order.status == 'Completed' %} <span style="color: #4caf50;">Đã hoàn thành</span>
+                    {% elif order.status == 'Canceled' %} <span style="color: #f44336;">Đã hủy</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p style="color: gray;">Bạn chưa có đơn hàng nào trong lịch sử.</p>
+{% endif %}
 </div>
 {% endblock %}
