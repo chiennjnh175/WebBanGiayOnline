@@ -4,7 +4,7 @@
 
 {% if order_completed %}
     <div style="text-align: center; margin-top: 50px; border: 1px solid #4CAF50; padding: 30px; border-radius: 8px; background-color: #f9fff9;">
-        <h2 style="color: #4CAF50;">🎉 Cảm ơn bạn đã đặt hàng!</h2>
+        <h2 style="color: #4CAF50;">Cảm ơn bạn đã đặt hàng!</h2>
         <p>Đơn hàng <strong>#{{ order.id }}</strong> của bạn đã được ghi nhận.</p>
         <p>Tổng thanh toán: <strong>{{ order.total_amount }}đ</strong></p>
         <p>Chúng tôi sẽ sớm liên hệ tới số <strong>{{ order.phone }}</strong> để giao hàng.</p>
@@ -52,11 +52,11 @@
                 {% for item in cart_items %}
                     <li style="margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
                         <strong>{{ item.product.name }}</strong> <br>
-                        Số lượng: {{ item.quantity }} | Giá: {{ item.total_price }}đ
+                        Số lượng: {{ item.quantity }} | Giá: {{ item.total_price }}$
                     </li>
                 {% endfor %}
             </ul>
-            <h4 style="color: red; text-align: right;">Tổng cộng: {{ total_amount }}đ</h4>
+            <h4 style="color: red; text-align: right;">Tổng cộng: {{ total_amount }}$</h4>
         </div>
     </div>
 {% endif %}

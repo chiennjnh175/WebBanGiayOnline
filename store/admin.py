@@ -8,9 +8,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'category', 'brand')
     prepopulated_fields = {'slug': ('name',)}
 
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Product, ProductAdmin)
-admin.site.register(Profile)
+
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
@@ -27,3 +25,6 @@ class OrderAdmin(admin.ModelAdmin):
     
     inlines = [OrderItemInline]
 admin.site.register(Order, OrderAdmin)
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(Product, ProductAdmin)
+admin.site.register(Profile)

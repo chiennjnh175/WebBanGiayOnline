@@ -127,18 +127,19 @@ def cart_detail(request):
     items = cart.items.all()
     
     total_cart_price = sum(item.total_price for item in items)
+    cart_count = sum(item.quantity for item in items)
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     context = {
         'items': items,
         'total_cart_price': total_cart_price,
         'orders': orders,
+        'cart_count': cart_count,
     }
     return render(request, 'store/cart.html', context)
 
 @login_required(login_url='login')
 def increase_cart_item(request, product_id):
     cart = get_object_or_404(Cart, user=request.user)
-    # Tìm CartItem dựa trên Product ID thay vì CartItem ID
     cart_item = get_object_or_404(CartItem, cart=cart, product_id=product_id)
     
     cart_item.quantity += 1
@@ -148,7 +149,6 @@ def increase_cart_item(request, product_id):
 @login_required(login_url='login')
 def decrease_cart_item(request, product_id):
     cart = get_object_or_404(Cart, user=request.user)
-    # Tìm CartItem dựa trên Product ID
     cart_item = get_object_or_404(CartItem, cart=cart, product_id=product_id)
     
     if cart_item.quantity > 1:
@@ -165,13 +165,11 @@ def checkout(request):
     cart = get_object_or_404(Cart, user=request.user)
     cart_items = cart.items.all()
     
-    # Khởi tạo context mặc định với cờ order_completed = False
     context = {
         'order_completed': False
     }
     
     if request.method == 'POST':
-        # Đề phòng trường hợp giỏ hàng trống mà vẫn gửi form
         if not cart_items.exists():
             messages.error(request, "Giỏ hàng của bạn đang trống!")
             return redirect('cart_detail')
@@ -182,7 +180,6 @@ def checkout(request):
         phone = request.POST.get('phone')
         address = request.POST.get('address')
         
-        # Bước 1: Tạo Đơn hàng mới (Order)
         order = Order.objects.create(
             user=request.user,
             customer_name=customer_name,
@@ -192,7 +189,6 @@ def checkout(request):
             status='Pending'
         )
         
-        # Bước 2: Chuyển dữ liệu từ CartItem sang OrderItem
         for item in cart_items:
             OrderItem.objects.create(
                 order=order,
@@ -201,16 +197,13 @@ def checkout(request):
                 quantity=item.quantity
             )
             
-        # Bước 3: Xóa sạch giỏ hàng
         cart_items.delete()
         
-        # Trả về chính trang checkout kèm theo thông báo thành công
         context['order_completed'] = True
         context['order'] = order
         return render(request, 'store/checkout.html', context)
 
-    # --- Xử lý GET request (Hiển thị form thanh toán) ---
-    # Nếu giỏ hàng trống thì đuổi về trang giỏ hàng
+
     if not cart_items.exists():
         messages.warning(request, "Giỏ hàng của bạn đang trống, hãy mua sắm thêm nhé!")
         return redirect('cart_detail')
@@ -225,3 +218,16 @@ def checkout(request):
     })
     return render(request, 'store/checkout.html', context)
 
+@login_required(login_url='login')
+def cancel_order(request, order_id):
+
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    if order.status == 'Pending':
+        order.status = 'Canceled'
+        order.save()
+        messages.success(request, f'Đã hủy đơn hàng #{order.id} thành công!')
+    else:
+        messages.error(request, 'Không thể hủy đơn hàng này vì đã được xử lý hoặc giao đi.')
+        
+    return redirect('cart_detail')
