@@ -9,17 +9,15 @@
         body { background-color: #f8f9fa; }
         .navbar-brand { font-weight: bold; color: #ff4757 !important; }
         .main-container { min-height: 80vh; margin-top: 30px; }
-        
         .dropdown-hover:hover .dropdown-menu {
             display: block;
             margin-top: 0;
         }
-        .toast-container { z-index: 2000; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow position-relative" style="z-index: 2050;">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">Zhopee</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -48,7 +46,7 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userMenu">
                                 <li><a class="dropdown-item" href="{% url 'profile' %}">Thông tin</a></li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'order_history' %}">Đơn hàng</a></li> <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Đăng xuất</a></li>
                             </ul>
                         </div>
@@ -63,14 +61,10 @@
         </div>
     </nav>
 
-    <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="margin-top: 65px; z-index: 2000;">
         {% if messages %}
             {% for message in messages %}
-                <div class="toast align-items-center border-0 
-                    {% if message.tags == 'success' %}text-bg-success
-                    {% elif message.tags == 'error' or message.tags == 'danger' %}text-bg-danger
-                    {% else %}text-bg-info{% endif %}" 
-                    role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast align-items-center text-bg-success border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="d-flex">
                         <div class="toast-body fw-bold">
                             {{ message }}
@@ -89,7 +83,7 @@
 
     <footer class="bg-dark text-white text-center py-4 mt-5">
         <div class="container">
-            <p class="mb-0">© 2026 Shoe Store Project - Made with Django</p>
+            <p class="mb-0">© 2026 Zhopee Project - Made with Django</p>
         </div>
     </footer>
 

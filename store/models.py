@@ -13,6 +13,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, null=True, blank=True)
     price = models.IntegerField(default=0)
+    stock = models.PositiveIntegerField(default=10, verbose_name="Số lượng tồn kho")
     description = models.TextField(null=True, blank=True)
     brand = models.CharField(max_length=100)
     image = models.ImageField(upload_to='products/', null=True, blank=True)
@@ -25,12 +26,17 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    @property
+    def is_available(self):
+        return self.stock > 0
 
+    def __str__(self):
+        return self.name
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15, null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.user.username

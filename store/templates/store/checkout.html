@@ -1,64 +1,118 @@
 {% extends 'store/base.html' %} 
+{% load humanize %}
 
 {% block content %}
-
-{% if order_completed %}
-    <div style="text-align: center; margin-top: 50px; border: 1px solid #4CAF50; padding: 30px; border-radius: 8px; background-color: #f9fff9;">
-        <h2 style="color: #4CAF50;">Cảm ơn bạn đã đặt hàng!</h2>
-        <p>Đơn hàng <strong>#{{ order.id }}</strong> của bạn đã được ghi nhận.</p>
-        <p>Tổng thanh toán: <strong>{{ order.total_amount }}đ</strong></p>
-        <p>Chúng tôi sẽ sớm liên hệ tới số <strong>{{ order.phone }}</strong> để giao hàng.</p>
-        <br>
-        <a href="{% url 'home' %}" style="display: inline-block; padding: 10px 20px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 5px;">
-            Tiếp tục mua sắm
-        </a>
-    </div>
-
-{% else %}
-    <h2>Thanh toán đơn hàng</h2>
-
-    <div style="display: flex; gap: 40px;">
-        <div style="flex: 1;">
-            <h3>Thông tin giao hàng</h3>
-            <form method="POST" action="{% url 'checkout' %}">
-                {% csrf_token %}
-                
-                <div style="margin-bottom: 15px;">
-                    <label>Họ và tên người nhận:</label><br>
-                    <input type="text" name="customer_name" required style="width: 100%;" 
-                           value="{{ request.user.first_name }} {{ request.user.last_name }}">
+<div class="container my-5">
+    {% if order_completed %}
+        <div class="row justify-content-center">
+            <div class="col-md-7 text-center">
+                <div class="card border-0 shadow-sm p-5">
+                    <div class="mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-check-circle-fill text-success" viewBox="0 0 16 16">
+                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                        </svg>
+                    </div>
+                    <h2 class="fw-bold text-success">Đặt hàng thành công!</h2>
+                    <p class="text-muted fs-5">Cảm ơn bạn đã tin tưởng Zhopee.</p>
+                    <hr class="my-4">
+                    <div class="text-start bg-light p-4 rounded mb-4">
+                        <p>Mã đơn hàng: <strong>#{{ order.id }}</strong></p>
+                        <p>Tổng thanh toán: <strong class="text-danger">${{ order.total_amount|intcomma }}</strong></p>
+                        <p>Số điện thoại nhận hàng: <strong>{{ order.phone }}</strong></p>
+                        <p class="mb-0 text-secondary small"><i>* Chúng tôi sẽ sớm liên hệ với bạn để xác nhận đơn hàng.</i></p>
+                    </div>
+                    <a href="{% url 'home' %}" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold">Tiếp tục mua sắm</a>
                 </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <label>Số điện thoại:</label><br>
-                    <input type="text" name="phone" required style="width: 100%;" 
-                           value="{{ profile.phone|default_if_none:'' }}">
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <label>Địa chỉ giao hàng:</label><br>
-                    <textarea name="address" required style="width: 100%;" rows="3">{{ profile.address|default_if_none:'' }}</textarea>
-                </div>
-                
-                <button type="submit" style="padding: 10px 20px; background-color: green; color: white; border: none; cursor: pointer; border-radius: 5px;">
-                    Xác nhận Đặt hàng
-                </button>
-            </form>
+            </div>
         </div>
 
-        <div style="flex: 1; border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
-            <h3>Đơn hàng của bạn</h3>
-            <ul style="list-style-type: none; padding: 0;">
-                {% for item in cart_items %}
-                    <li style="margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
-                        <strong>{{ item.product.name }}</strong> <br>
-                        Số lượng: {{ item.quantity }} | Giá: {{ item.total_price }}$
-                    </li>
-                {% endfor %}
-            </ul>
-            <h4 style="color: red; text-align: right;">Tổng cộng: {{ total_amount }}$</h4>
-        </div>
-    </div>
-{% endif %}
+    {% else %}
+        <h2 class="mb-4 fw-bold"><i class="bi bi-credit-card-2-back me-2"></i>Thanh toán đơn hàng</h2>
+        
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm p-4">
+                    <h4 class="mb-4 fw-bold border-bottom pb-2">Thông tin nhận hàng</h4>
+                    <form method="POST" action="{% url 'checkout' %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Họ và tên người nhận</label>
+                            <input type="text" name="customer_name" class="form-control form-control-lg fs-6" required 
+                                   placeholder="Nhập họ tên..."
+                                   value="{{ request.user.first_name }} {{ request.user.last_name }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Số điện thoại</label>
+                            <input type="text" name="phone" class="form-control form-control-lg fs-6" required 
+                                   placeholder="Số điện thoại liên lạc..."
+                                   value="{{ profile.phone|default_if_none:'' }}">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Địa chỉ giao hàng</label>
+                            <textarea name="address" class="form-control form-control-lg fs-6" required rows="3" 
+                                      placeholder="Địa chỉ cụ thể (Số nhà, đường, phường/xã...)">{{ profile.address|default_if_none:'' }}</textarea>
+                        </div>
 
+                        <div class="bg-light p-3 rounded mb-4">
+                            <p class="mb-0 small text-muted"><i class="bi bi-info-circle me-1"></i> Phương thức thanh toán: <strong>Thanh toán khi nhận hàng (COD)</strong></p>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold py-3 text-uppercase shadow-sm mt-2">
+                            Xác nhận đặt hàng
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                    <div class="card-body p-4">
+                        <h4 class="mb-4 fw-bold border-bottom pb-2">Đơn hàng của bạn</h4>
+                        <div class="order-summary mb-4" style="max-height: 400px; overflow-y: auto;">
+                            {% for item in cart_items %}
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="position-relative">
+                                        {% if item.product.image %}
+                                            <img src="{{ item.product.image.url }}" class="rounded border" style="width: 60px; height: 60px; object-fit: cover;">
+                                        {% else %}
+                                            <img src="https://via.placeholder.com/60" class="rounded border">
+                                        {% endif %}
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary">
+                                            {{ item.quantity }}
+                                        </span>
+                                    </div>
+                                    <div class="ms-3 flex-grow-1">
+                                        <h6 class="mb-0 fw-bold">{{ item.product.name }}</h6>
+                                        <small class="text-muted">${{ item.product.price|intcomma }} x {{ item.quantity }}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="fw-bold text-dark">${{ item.total_price|intcomma }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="border-top pt-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Tạm tính:</span>
+                                <span>${{ total_amount|intcomma }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="text-muted">Phí vận chuyển:</span>
+                                <span class="text-success">Miễn phí</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                                <span class="fs-5 fw-bold">Tổng cộng:</span>
+                                <span class="fs-3 fw-bold text-danger">${{ total_amount|intcomma }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

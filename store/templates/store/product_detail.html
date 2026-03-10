@@ -1,53 +1,120 @@
 {% extends 'store/base.html' %}
+{% load humanize %}
 
 {% block content %}
-<div class="container mt-4 mb-5">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-                <strong>Thành công!</strong> {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
+<div class="container mt-5 mb-5">
 
-    <div class="row bg-white p-4 shadow-sm rounded border">
-        
-        <div class="col-md-5 mb-4 mb-md-0 text-center">
-            {% if product.image %}
-                <img src="{{ product.image.url }}" class="img-fluid rounded border shadow-sm" alt="{{ product.name }}" style="max-height: 500px; object-fit: contain;">
-            {% else %}
-                <img src="https://via.placeholder.com/500x500" class="img-fluid rounded border shadow-sm" alt="No image">
-            {% endif %}
+    <div class="row bg-white shadow-sm rounded-4 overflow-hidden border">
+        <div class="col-md-6 p-4 bg-white d-flex align-items-center justify-content-center border-end">
+            <div class="product-image-wrapper">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="img-fluid rounded zoom-effect" alt="{{ product.name }}" id="mainProductImg">
+                {% else %}
+                    <img src="https://via.placeholder.com/600x600" class="img-fluid rounded" alt="No image">
+                {% endif %}
+            </div>
         </div>
 
-        <div class="col-md-7 ps-md-5">
-            <h2 class="fw-bold mb-3">{{ product.name }}</h2>
-            
-            <div class="mb-3">
-                <span class="badge bg-dark fs-6 px-3 py-2">Thương hiệu: {{ product.brand }}</span>
+        <div class="col-md-6 p-5">
+            <div class="mb-2 text-uppercase text-muted small fw-bold tracking-wider">
+                {{ product.brand }}
             </div>
+            <h1 class="fw-bold mb-3 display-6 text-dark">{{ product.name }}</h1>
             
-            <div class="bg-light p-4 rounded mb-4 mt-4 border-start border-danger border-5">
-                <h2 class="text-danger fw-bold mb-0">{{ product.price }} VNĐ</h2>
+            <div class="d-flex align-items-center mb-4">
+                <div class="fs-2 fw-bold text-danger me-3">
+                    ${{ product.price|intcomma }}
+                </div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                    <i class="bi bi-check2-circle me-1"></i> Còn hàng
+                </span>
             </div>
-            
-            <h5 class="fw-bold">Mô tả sản phẩm:</h5>
-            <p class="mb-4 text-secondary" style="line-height: 1.8; font-size: 1.1rem;">
-                {{ product.description|linebreaks }}
-            </p>
 
-            <hr class="my-4">
+            <div class="p-3 bg-light rounded-3 mb-4">
+                <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-2"></i>Mô tả ngắn:</h6>
+                <div class="text-secondary" style="line-height: 1.6; font-size: 0.95rem;">
+                    {{ product.description|linebreaks|truncatewords:50 }}
+                </div>
+            </div>
 
-            <div class="d-flex gap-3 mt-4">
-                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-outline-dark btn-lg w-50 d-flex align-items-center justify-content-center">
-                    Thêm vào giỏ hàng
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <div class="d-flex align-items-center small text-muted">
+                        <i class="bi bi-truck fs-4 me-2 text-primary"></i>
+                        Giao hàng toàn quốc
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="d-flex align-items-center small text-muted">
+                        <i class="bi bi-shield-check fs-4 me-2 text-primary"></i>
+                        Bảo hành chính hãng
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4 text-muted opacity-25">
+
+            <div class="d-flex gap-3">
+                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-outline-dark btn-lg flex-grow-1 py-3 fw-bold rounded-3">
+                    <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
                 </a>
-                
-                <button class="btn btn-danger btn-lg w-50 fw-bold">Mua ngay</button>
+                <a href="{% url 'add_to_cart' product.id %}?next=checkout" class="btn btn-danger btn-lg flex-grow-1 py-3 fw-bold rounded-3 shadow-sm">
+                    Mua ngay
+                </a>
             </div>
             
         </div>
     </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <ul class="nav nav-tabs border-bottom-2" id="productTab" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active fw-bold px-4 py-3" data-bs-toggle="tab" data-bs-target="#desc">Mô tả chi tiết</button>
+                </li>
+            </ul>
+            <div class="tab-content bg-white p-4 border border-top-0 rounded-bottom-4 shadow-sm">
+                <div class="tab-pane fade show active" id="desc">
+                    <div class="product-content" style="line-height: 2;">
+                        {{ product.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .product-image-wrapper {
+        overflow: hidden;
+        border-radius: 12px;
+        background: #f8f9fa;
+    }
+    .zoom-effect {
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: zoom-in;
+    }
+    .zoom-effect:hover {
+        transform: scale(1.1);
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        font-size: 1.2rem;
+        vertical-align: middle;
+    }
+    
+    .nav-tabs .nav-link {
+        border: none;
+        color: #6c757d;
+    }
+    .nav-tabs .nav-link.active {
+        color: #dc3545;
+        border-bottom: 3px solid #dc3545;
+    }
+    
+    .tracking-wider {
+        letter-spacing: 1px;
+    }
+</style>
 {% endblock %}

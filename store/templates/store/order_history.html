@@ -1,0 +1,125 @@
+{% extends 'store/base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4 fw-bold text-center">Lịch sử đơn hàng</h2>
+
+    {% if orders %}
+    
+    <ul class="nav nav-pills justify-content-center mb-4 gap-2" id="orderTabs">
+        <li class="nav-item">
+            <button class="nav-link active px-4 rounded-pill" data-filter="all">Tất cả</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4 rounded-pill text-warning" data-filter="Pending" style="background-color: transparent;">Chờ xử lý</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4 rounded-pill text-info" data-filter="Shipping" style="background-color: transparent;">Đang giao hàng</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4 rounded-pill text-success" data-filter="Completed" style="background-color: transparent;">Đã hoàn thành</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4 rounded-pill text-danger" data-filter="Canceled" style="background-color: transparent;">Đã hủy</button>
+        </li>
+    </ul>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="py-3">Mã đơn</th>
+                            <th scope="col" class="py-3">Ngày đặt</th>
+                            <th scope="col" class="py-3">Tổng tiền</th>
+                            <th scope="col" class="py-3">Trạng thái</th>
+                            <th scope="col" class="py-3">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                        {% for order in orders %}
+                        <tr class="order-row" data-status="{{ order.status }}">
+                            <td class="fw-bold">#{{ order.id }}</td>
+                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            <td class="text-danger fw-bold">${{ order.total_amount|intcomma }}</td>
+                            <td>
+                                {% if order.status == 'Pending' %} 
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Chờ xử lý</span>
+                                {% elif order.status == 'Shipping' %} 
+                                    <span class="badge bg-info text-dark px-3 py-2 rounded-pill">Đang giao hàng</span>
+                                {% elif order.status == 'Completed' %} 
+                                    <span class="badge bg-success px-3 py-2 rounded-pill">Đã hoàn thành</span>
+                                {% elif order.status == 'Canceled' %} 
+                                    <span class="badge bg-danger px-3 py-2 rounded-pill">Đã hủy</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if order.status == 'Pending' %}
+                                    <a href="{% url 'cancel_order' order.id %}" 
+                                       onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng #{{ order.id }} không?');" 
+                                       class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                        Hủy đơn
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div id="noOrderMessage" class="text-center py-4 text-muted" style="display: none;">
+                    Không có đơn hàng nào ở trạng thái này.
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5 bg-white shadow-sm rounded border-0">
+        <h4 class="text-muted mb-3">Bạn chưa có đơn hàng nào!</h4>
+        <a href="{% url 'home' %}" class="btn btn-primary px-4 py-2 fw-bold rounded-pill">Tiếp tục mua sắm</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const tabs = document.querySelectorAll("#orderTabs .nav-link");
+        const rows = document.querySelectorAll(".order-row");
+        const noOrderMessage = document.getElementById("noOrderMessage");
+
+        tabs.forEach(tab => {
+            tab.addEventListener("click", function(e) {
+                e.preventDefault();
+                
+                tabs.forEach(t => {
+                    t.classList.remove("active", "bg-primary", "text-white");
+                    t.style.backgroundColor = "transparent";
+                });
+                
+                this.classList.add("active");
+                this.style.backgroundColor = "";
+                const filter = this.getAttribute("data-filter");
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    if (filter === "all" || row.getAttribute("data-status") === filter) {
+                        row.style.display = ""; 
+                        visibleCount++;
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+
+                if (visibleCount === 0) {
+                    noOrderMessage.style.display = "block";
+                } else {
+                    noOrderMessage.style.display = "none";
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

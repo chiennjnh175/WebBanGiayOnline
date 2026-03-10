@@ -1,68 +1,93 @@
 {% extends 'store/base.html' %}
-{% load humanize %} {% block content %}
+{% load humanize %} 
+
+{% block content %}
 <div class="row mb-5">
-    <div class="col-md-8 mx-auto">
+    <div class="col-md-10 mx-auto">
         <div class="d-flex gap-2">
-            <div class="dropdown dropdown-hover">
-                <button class="btn btn-dark h-100 px-4 dropdown-toggle" type="button" id="brandMenu">
+            <div class="dropdown">
+                <button class="btn btn-dark h-100 px-4 dropdown-toggle shadow-sm" type="button" id="brandMenu" data-bs-toggle="dropdown">
                     Thể loại
                 </button>
-                <ul class="dropdown-menu shadow">
+                <ul class="dropdown-menu shadow border-0">
                     {% for category in categories %}
                         <li><a class="dropdown-item" href="{% url 'products_by_category' category.slug %}">{{ category.name }}</a></li>
                     {% empty %}
-                        <li><span class="dropdown-item text-muted">Chưa có thương hiệu</span></li>
+                        <li><span class="dropdown-item text-muted">Chưa có danh mục</span></li>
                     {% endfor %}
                 </ul>
             </div>
 
             <form class="d-flex flex-grow-1" method="GET" action="{% url 'home' %}">
-                <input class="form-control me-2 border-dark" type="search" name="q" value="{{ request.GET.q }}" placeholder="...">
-                <button class="btn btn-outline-dark px-4" type="submit">Tìm</button>
+                <div class="input-group">
+                    <input class="form-control border-dark shadow-none" type="search" name="q" value="{{ request.GET.q }}" placeholder="Tìm kiếm sản phẩm...">
+                    <button class="btn btn-dark px-4" type="submit text-uppercase fw-bold">Tìm</button>
+                </div>
             </form>
         </div>
     </div>
 </div>
 
-<div class="row">
+<div class="container-fluid px-0">
     {% if request.GET.q %}
-    <h3 class="mb-4 text-center">
-        Kết quả tìm kiếm cho: "<span class="text-primary">{{ request.GET.q }}</span>"
-    </h3>
-    {% endif %}
-    
-    {% for product in products %}
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100 border-0 text-center pt-2">
-            
-            <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}#{% endif %}">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px; margin: 15px auto 0; display: block;">
-                {% else %}
-                    <img src="https://via.placeholder.com/150x150" alt="No image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px; margin: 15px auto 0; display: block;">
-                {% endif %}
-            </a>
-            
-            <div class="card-body d-flex flex-column align-items-center">
-                <h5 class="card-title text-truncate w-100">{{ product.name }}</h5>
-                
-                <p class="text-danger fs-5 fw-bold mb-1">${{ product.price|intcomma }}</p>
-                <p class="card-text small text-muted mb-3">Thương hiệu: {{ product.brand }}</p>
-                
-                <div class="d-flex gap-2 mt-auto w-100">
-                    <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}#{% endif %}" class="btn btn-outline-dark btn-sm w-50">Chi tiết</a>
-                    
-                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-dark btn-sm w-50">Thêm vào giỏ</a>
-                </div>
-            </div>
-            
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h3 class="fw-bold">Kết quả cho: "<span class="text-danger">{{ request.GET.q }}</span>"</h3>
         </div>
     </div>
-    {% empty %}
-    <div class="col-12 text-center mt-4">
-        <p class="text-muted fs-5">Không tìm thấy sản phẩm nào.</p>
-        <a href="{% url 'home' %}" class="btn btn-primary mt-2">Xem tất cả sản phẩm</a>
+    {% endif %}
+    
+    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
+        {% for product in products %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 p-2 transition-hover">
+                <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}#{% endif %}" class="text-decoration-none">
+                    <div class="img-container mb-2">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-img-top rounded shadow-sm" style="height: 160px; object-fit: cover;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/200x160" alt="No image" class="card-img-top rounded shadow-sm" style="height: 160px; object-fit: cover;">
+                        {% endif %}
+                    </div>
+                </a>
+                
+                <div class="card-body p-1 d-flex flex-column text-center">
+                    <h6 class="card-title text-truncate mb-1 fw-bold" title="{{ product.name }}" style="font-size: 0.9rem;">
+                        {{ product.name }}
+                    </h6>
+                    
+                    <p class="text-danger fw-bold mb-2" style="font-size: 1rem;">${{ product.price|intcomma }}</p>
+                    
+                    <div class="mt-auto d-grid gap-1">
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-dark btn-sm rounded-1 py-1" style="font-size: 0.75rem;">
+                            <i class="bi bi-cart-plus"></i> Thêm giỏ
+                        </a>
+                        <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}#{% endif %}" class="btn btn-outline-secondary btn-sm rounded-1 py-1" style="font-size: 0.7rem;">
+                            Chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center mt-5">
+            <p class="text-muted fs-5">Không tìm thấy sản phẩm nào.</p>
+            <a href="{% url 'home' %}" class="btn btn-outline-primary rounded-pill px-4">Xem tất cả sản phẩm</a>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
+
+<style>
+    .transition-hover {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .transition-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    .card-title {
+        min-height: 1.2em;
+    }
+</style>
 {% endblock %}
