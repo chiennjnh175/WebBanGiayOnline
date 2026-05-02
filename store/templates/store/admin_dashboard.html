@@ -1,0 +1,154 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h1 class="h3">DASHBOARD</h1>
+            </div>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">Quay về cửa hàng</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Sản phẩm</h6>
+                <h2 class="display-6 mb-0">{{ total_products }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Biến thể</h6>
+                <h2 class="display-6 mb-0">{{ total_variants }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Người dùng</h6>
+                <h2 class="display-6 mb-0">{{ total_users }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Danh mục</h6>
+                <h2 class="display-6 mb-0">{{ total_categories }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Thương hiệu</h6>
+                <h2 class="display-6 mb-0">{{ total_brands }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Đơn hàng</h6>
+                <h2 class="display-6 mb-0">{{ total_orders }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Doanh thu</h6>
+                <h2 class="display-6 mb-0">${{ completed_revenue|floatformat:0 }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted">Đơn chờ xử lý</h6>
+                <h2 class="display-6 mb-0">{{ pending_orders }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">Hàng tồn thấp</h5>
+                <p class="text-muted">Các biến thể có số lượng còn lại thấp (≤ 5).</p>
+                {% if low_stock_variants %}
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Size</th>
+                                    <th>Màu</th>
+                                    <th>Kho</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for variant in low_stock_variants %}
+                                    <tr>
+                                        <td>{{ variant.product.name }}</td>
+                                        <td>{{ variant.size }}</td>
+                                        <td>{{ variant.color|default:'Mặc định' }}</td>
+                                        <td>{{ variant.stock }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="mb-0">Không có biến thể sắp hết hàng.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">Đơn hàng gần nhất</h5>
+                {% if recent_orders %}
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Khách hàng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Tổng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                    <tr>
+                                        <td>{{ order.id }}</td>
+                                        <td>{{ order.customer_name }}</td>
+                                        <td>{{ order.status }}</td>
+                                        <td>${{ order.total_amount|floatformat:0 }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="mb-0">Chưa có đơn hàng nào.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
