@@ -75,8 +75,8 @@
                             {% for item in cart_items %}
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="position-relative">
-                                        {% if item.product.image %}
-                                            <img src="{{ item.product.image.url }}" class="rounded border" style="width: 60px; height: 60px; object-fit: cover;">
+                                        {% if item.variant.product.image %}
+                                            <img src="{{ item.variant.product.image.url }}" class="rounded border" style="width: 60px; height: 60px; object-fit: cover;">
                                         {% else %}
                                             <img src="https://via.placeholder.com/60" class="rounded border">
                                         {% endif %}
@@ -85,8 +85,8 @@
                                         </span>
                                     </div>
                                     <div class="ms-3 flex-grow-1">
-                                        <h6 class="mb-0 fw-bold">{{ item.product.name }}</h6>
-                                        <small class="text-muted">${{ item.product.price|intcomma }} x {{ item.quantity }}</small>
+                                        <h6 class="mb-0 fw-bold">{{ item.variant.product.name }}</h6>
+                                        <small class="text-muted">${{ item.variant.product.price|intcomma }} x {{ item.quantity }}</small>
                                     </div>
                                     <div class="text-end">
                                         <span class="fw-bold text-dark">${{ item.total_price|intcomma }}</span>

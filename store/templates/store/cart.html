@@ -26,25 +26,30 @@
                                     <tr>
                                         <td class="ps-4 py-3">
                                             <div class="d-flex align-items-center">
-                                                <a href="{% if item.product.slug %}{% url 'product_detail' item.product.slug %}{% else %}#{% endif %}">
-                                                    {% if item.product.image %}
-                                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="rounded shadow-sm" style="width: 70px; aspect-ratio: 1/1; object-fit: cover;">
+                                                <!-- SỬA: Truy cập qua item.variant.product -->
+                                                <a href="{% if item.variant.product.slug %}{% url 'product_detail' item.variant.product.slug %}{% else %}#{% endif %}">
+                                                    {% if item.variant.product.image %}
+                                                        <img src="{{ item.variant.product.image.url }}" alt="{{ item.variant.product.name }}" class="rounded shadow-sm" style="width: 70px; aspect-ratio: 1/1; object-fit: cover;">
                                                     {% else %}
                                                         <img src="https://via.placeholder.com/70" alt="No image" class="rounded shadow-sm" style="width: 70px; aspect-ratio: 1/1; object-fit: cover;">
                                                     {% endif %}
                                                 </a>
                                                 <div class="ms-3">
-                                                    <h6 class="mb-1 fw-bold">{{ item.product.name }}</h6>
-                                                    <small class="text-muted">Thương hiệu: {{ item.product.brand }}</small>
+                                                    <!-- SỬA: Hiển thị tên sản phẩm và Size -->
+                                                    <h6 class="mb-1 fw-bold">{{ item.variant.product.name }}</h6>
+                                                    <div class="badge bg-light text-dark border mb-1">Size: {{ item.variant.size }}</div><br>
+                                                    <small class="text-muted">Thương hiệu: {{ item.variant.product.brand.name }}</small>
                                                 </div>
                                             </div>
                                         </td>
                                         
-                                        <td class="text-center">${{ item.product.price|intcomma }}</td>
+                                        <!-- SỬA: Đơn giá từ product -->
+                                        <td class="text-center">{{ item.variant.product.price|intcomma }}$</td>
                                         
                                         <td class="text-center">
                                             <div class="d-flex justify-content-center align-items-center gap-2">
-                                                <a href="{% url 'decrease_cart_item' item.product.id %}" class="btn btn-sm btn-outline-secondary px-2" style="border-radius: 8px;">
+                                                <!-- SỬA: Dùng item.id cho URL tăng/giảm -->
+                                                <a href="{% url 'decrease_cart_item' item.id %}" class="btn btn-sm btn-outline-secondary px-2" style="border-radius: 8px;">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
                                                         <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
                                                     </svg>
@@ -52,7 +57,7 @@
         
                                                 <span class="fw-bold fs-5 px-2">{{ item.quantity }}</span>
         
-                                                <a href="{% url 'increase_cart_item' item.product.id %}" class="btn btn-sm btn-outline-secondary px-2" style="border-radius: 8px;">
+                                                <a href="{% url 'increase_cart_item' item.id %}" class="btn btn-sm btn-outline-secondary px-2" style="border-radius: 8px;">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
                                                         <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                                                     </svg>
@@ -60,13 +65,13 @@
                                             </div>
                                         </td>
                                         
-                                        <td class="text-center text-danger fw-bold">${{ item.total_price|intcomma }}</td>
+                                        <td class="text-center text-danger fw-bold">{{ item.total_price|intcomma }}$</td>
                                         
                                         <td class="pe-4 text-end">
                                             <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-outline-danger" title="Xóa khỏi giỏ hàng">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
                                                     <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.813 1H3.188l.836 10.433A1 1 0 0 0 5.02 15h5.96a1 1 0 0 0 .997-.92l.836-10.433ZM5.5 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5ZM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5Zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0Z"/>
-                                                </svg> Xóa
+                                                </svg>
                                             </a>
                                         </td>
                                     </tr>
@@ -81,7 +86,7 @@
             <div class="col-lg-4">
                 <div class="card border-0 shadow-sm sticky-top" style="top: 80px;">
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold border-bottom pb-3 mb-4"></h5>
+                        <h5 class="card-title fw-bold border-bottom pb-3 mb-4">Tóm tắt đơn hàng</h5>
                         
                         <div class="d-flex justify-content-between mb-3">
                             <span class="text-muted">Tổng số lượng:</span>
@@ -90,12 +95,12 @@
                         
                         <div class="d-flex justify-content-between mb-4">
                             <span class="text-muted">Tạm tính:</span>
-                            <span class="fw-bold">${{ total_cart_price|intcomma }}</span>
+                            <span class="fw-bold">{{ total_cart_price|intcomma }}$</span>
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center border-top pt-3 mb-4">
                             <span class="fs-5 fw-bold">Tổng cộng:</span>
-                            <span class="fs-4 fw-bold text-danger">${{ total_cart_price|intcomma }}</span>
+                            <span class="fs-4 fw-bold text-danger">{{ total_cart_price|intcomma }}$</span>
                         </div>
                         
                         <a href="{% url 'checkout' %}" class="btn btn-dark w-100 py-2 fs-5 text-uppercase fw-bold">Đặt hàng</a>

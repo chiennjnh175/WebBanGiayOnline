@@ -45,8 +45,13 @@
                                 </svg>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userMenu">
+                                {% if user.is_staff %}
+                                    <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}">Quản trị</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% endif %}
                                 <li><a class="dropdown-item" href="{% url 'profile' %}">Thông tin</a></li>
-                                <li><a class="dropdown-item" href="{% url 'order_history' %}">Đơn hàng</a></li> <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'order_history' %}">Đơn hàng</a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Đăng xuất</a></li>
                             </ul>
                         </div>

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, Product, Order
 
 class RegistrationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -48,4 +48,28 @@ class ProfileUpdateForm(forms.ModelForm):
         labels = {
             'phone': 'Số điện thoại',
             'address': 'Địa chỉ',
+        }
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'slug', 'price', 'description', 'brand', 'category', 'image']
+        labels = {
+            'name': 'Tên sản phẩm',
+            'slug': 'Slug',
+            'price': 'Giá',
+            'description': 'Mô tả',
+            'brand': 'Hãng',
+            'category': 'Thể loại',
+            'image': 'Hình ảnh',
+        }
+
+
+class OrderStatusForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['status']
+        labels = {
+            'status': 'Trạng thái đơn hàng',
         }

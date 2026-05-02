@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Category, Product, Profile, OrderItem, Order
+from .models import Category, Product, ProductVariant, Profile, OrderItem, Order, Brand, Cart, CartItem
+
+class ProductVariantInline(admin.TabularInline):
+    model = ProductVariant
+    extra = 1
+
+class BrandAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('name',)}
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
@@ -7,10 +14,11 @@ class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'stock', 'category', 'brand')
-    list_editable = ('stock', 'price')
-    list_filter = ('category', 'brand', 'stock')
+    list_display = ('name', 'price', 'category', 'brand')
+    list_editable = ('price',)
+    list_filter = ('category', 'brand')
     prepopulated_fields = {'slug': ('name',)}
+    inlines = [ProductVariantInline]
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'phone', 'address')
@@ -20,7 +28,7 @@ class ProfileAdmin(admin.ModelAdmin):
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
-    readonly_fields = ['product', 'price', 'quantity']
+    readonly_fields = ['variant', 'price', 'quantity']
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'customer_name', 'phone', 'status', 'total_amount', 'created_at']
@@ -33,3 +41,7 @@ admin.site.register(Order, OrderAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Profile, ProfileAdmin)
+admin.site.register(Brand, BrandAdmin)
+admin.site.register(ProductVariant)
+admin.site.register(Cart)
+admin.site.register(CartItem)

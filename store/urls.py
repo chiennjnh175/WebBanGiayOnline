@@ -9,12 +9,16 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('category/<slug:category_slug>/', views.home, name='products_by_category'),
     path('product/<slug:slug>/', views.product_detail, name='product_detail'),
+    path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
+    
     path('cart/', views.cart_detail, name='cart_detail'),
-    path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+    path('add-to-cart/<int:variant_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
-    path('cart/decrease/<int:product_id>/', views.decrease_cart_item, name='decrease_cart_item'),
-    path('cart/increase/<int:product_id>/', views.increase_cart_item, name='increase_cart_item'),
+    path('cart/decrease/<int:item_id>/', views.decrease_cart_item, name='decrease_cart_item'),
+    path('cart/increase/<int:item_id>/', views.increase_cart_item, name='increase_cart_item'),
+    
     path('checkout/', views.checkout, name='checkout'),
     path('order/cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
     path('order-history/', views.order_history, name='order_history'),
+    path('order-detail/<int:order_id>/', views.order_detail, name='order_detail'),
 ]

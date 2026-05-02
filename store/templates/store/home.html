@@ -6,8 +6,8 @@
     <div class="col-md-10 mx-auto">
         <div class="d-flex gap-2">
             <div class="dropdown">
-                <button class="btn btn-dark h-100 px-4 dropdown-toggle shadow-sm" type="button" id="brandMenu" data-bs-toggle="dropdown">
-                    Thể loại
+                <button class="btn btn-dark h-100 px-4 dropdown-toggle shadow-sm" type="button" id="categoryMenu" data-bs-toggle="dropdown">
+                    {% if selected_category %}{{ selected_category.name }}{% else %}Thể loại{% endif %}
                 </button>
                 <ul class="dropdown-menu shadow border-0">
                     {% for category in categories %}
@@ -17,7 +17,18 @@
                     {% endfor %}
                 </ul>
             </div>
-
+<div class="dropdown">
+                <button class="btn btn-outline-dark bg-white text-dark h-100 px-4 dropdown-toggle shadow-sm" type="button" id="brandMenu" data-bs-toggle="dropdown">
+                    {% if selected_brand %}{{ selected_brand.name }}{% else %}Hãng{% endif %}
+                </button>
+                <ul class="dropdown-menu shadow border-0">
+                    {% for brand in brands %}
+                        <li><a class="dropdown-item" href="?brand={{ brand.slug }}">{{ brand.name|title }}</a></li>
+                    {% empty %}
+                        <li><span class="dropdown-item text-muted">Chưa có hãng nào</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
             <form class="d-flex flex-grow-1" method="GET" action="{% url 'home' %}">
                 <div class="input-group">
                     <input class="form-control border-dark shadow-none" type="search" name="q" value="{{ request.GET.q }}" placeholder="Tìm kiếm sản phẩm...">
@@ -59,7 +70,7 @@
                     <p class="text-danger fw-bold mb-2" style="font-size: 1rem;">${{ product.price|intcomma }}</p>
                     
                     <div class="mt-auto d-grid gap-1">
-                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-dark btn-sm rounded-1 py-1" style="font-size: 0.75rem;">
+                        <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}#{% endif %}" class="btn btn-dark btn-sm rounded-1 py-1" style="font-size: 0.75rem;">
                             <i class="bi bi-cart-plus"></i> Thêm giỏ
                         </a>
                         <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}#{% endif %}" class="btn btn-outline-secondary btn-sm rounded-1 py-1" style="font-size: 0.7rem;">

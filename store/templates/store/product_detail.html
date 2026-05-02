@@ -3,15 +3,47 @@
 
 {% block content %}
 <div class="container mt-5 mb-5">
-
-    <div class="row bg-white shadow-sm rounded-4 overflow-hidden border">
-        <div class="col-md-6 p-4 bg-white d-flex align-items-center justify-content-center border-end">
-            <div class="product-image-wrapper">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" class="img-fluid rounded zoom-effect" alt="{{ product.name }}" id="mainProductImg">
+    <div class="product-detail-container mx-auto bg-white shadow-sm rounded-4 overflow-hidden border">
+        <div class="row g-0">
+            <div class="col-lg-5 col-md-6 p-4 bg-white d-flex align-items-center justify-content-center border-end">
+                <div class="product-image-wrapper">
+                {% if product_images %}
+                    <div id="productCarousel" class="carousel slide position-relative" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for image_url in product_images %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <div class="image-zoom-area">
+                                        <img src="{{ image_url }}" class="img-fluid rounded product-main-image" alt="{{ product.name }}">
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if product_images|length > 1 %}
+                            <button class="carousel-control-prev custom-carousel-btn" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next custom-carousel-btn" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                            <div class="d-flex justify-content-center flex-wrap gap-2 mt-3">
+                                {% for image_url in product_images %}
+                                    <img src="{{ image_url }}" class="thumbnail rounded" data-bs-target="#productCarousel" data-bs-slide-to="{{ forloop.counter0 }}" alt="Thumbnail {{ forloop.counter }}">
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
                 {% else %}
                     <img src="https://via.placeholder.com/600x600" class="img-fluid rounded" alt="No image">
                 {% endif %}
+
+                <div class="p-3 bg-light rounded-4 mt-4">
+                    <h5 class="fw-bold mb-2">Mô tả sản phẩm</h5>
+                    <p class="text-secondary mb-0" style="line-height: 1.6; font-size: 0.95rem;">
+                        {{ product.description|default:'Chưa có mô tả.' }}
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -23,98 +55,173 @@
             
             <div class="d-flex align-items-center mb-4">
                 <div class="fs-2 fw-bold text-danger me-3">
-                    ${{ product.price|intcomma }}
+                    {{ product.price|intcomma }}$
                 </div>
+                {% if product.variants.exists %}
                 <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
                     <i class="bi bi-check2-circle me-1"></i> Còn hàng
                 </span>
+                {% else %}
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 rounded-pill">
+                    Tạm hết hàng
+                </span>
+                {% endif %}
             </div>
 
-            <div class="p-3 bg-light rounded-3 mb-4">
-                <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-2"></i>Mô tả ngắn:</h6>
-                <div class="text-secondary" style="line-height: 1.6; font-size: 0.95rem;">
-                    {{ product.description|linebreaks|truncatewords:50 }}
-                </div>
-            </div>
-
-            <div class="row g-3 mb-4">
-                <div class="col-6">
-                    <div class="d-flex align-items-center small text-muted">
-                        <i class="bi bi-truck fs-4 me-2 text-primary"></i>
-                        Giao hàng toàn quốc
+            <form id="addToCartForm" method="GET" action="">
+                <div class="mb-4">
+                    <label class="fw-bold mb-2 d-block">Chọn màu:</label>
+                    <div class="d-flex flex-wrap gap-2" id="color-options">
+                        {% for color in colors %}
+                            <input type="radio" class="btn-check color-picker" name="color_select" id="color-{{ forloop.counter }}" value="{{ color }}" required>
+                            <label class="btn btn-outline-dark px-3 py-2 text-center" for="color-{{ forloop.counter }}">{{ color }}</label>
+                        {% endfor %}
                     </div>
                 </div>
-                <div class="col-6">
-                    <div class="d-flex align-items-center small text-muted">
-                        <i class="bi bi-shield-check fs-4 me-2 text-primary"></i>
-                        Bảo hành chính hãng
+
+                <div class="mb-4">
+                    <label class="fw-bold mb-2 d-block">Chọn kích cỡ:</label>
+                    <div class="d-flex flex-wrap gap-2" id="size-options">
+                        {% for size in sizes %}
+                            <input type="radio" class="btn-check size-picker" 
+                                   name="variant_select" 
+                                   id="variant-size-{{ forloop.counter }}" 
+                                   value="{{ size }}" 
+                                   data-size="{{ size }}" 
+                                   disabled required>
+                            <label class="btn btn-outline-dark px-3 py-2 text-center size-label disabled" for="variant-size-{{ forloop.counter }}">
+                                <span class="d-block">{{ size }}</span>
+                                <span class="stock-number small text-muted" style="display: block; min-height: 1.1rem;"></span>
+                            </label>
+                        {% endfor %}
                     </div>
                 </div>
-            </div>
-
-            <hr class="my-4 text-muted opacity-25">
-
-            <div class="d-flex gap-3">
-                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-outline-dark btn-lg flex-grow-1 py-3 fw-bold rounded-3">
-                    <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
-                </a>
-                <a href="{% url 'add_to_cart' product.id %}?next=checkout" class="btn btn-danger btn-lg flex-grow-1 py-3 fw-bold rounded-3 shadow-sm">
-                    Mua ngay
-                </a>
-            </div>
-            
-        </div>
-    </div>
-
-    <div class="row mt-5">
-        <div class="col-12">
-            <ul class="nav nav-tabs border-bottom-2" id="productTab" role="tablist">
-                <li class="nav-item">
-                    <button class="nav-link active fw-bold px-4 py-3" data-bs-toggle="tab" data-bs-target="#desc">Mô tả chi tiết</button>
-                </li>
-            </ul>
-            <div class="tab-content bg-white p-4 border border-top-0 rounded-bottom-4 shadow-sm">
-                <div class="tab-pane fade show active" id="desc">
-                    <div class="product-content" style="line-height: 2;">
-                        {{ product.description|linebreaks }}
-                    </div>
+                <div class="d-flex gap-3">
+                    <button type="submit" id="addBtn" class="btn btn-outline-dark btn-lg flex-grow-1 py-3 fw-bold rounded-3" disabled>
+                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
+                    </button>
+                    <button type="submit" id="buyNowBtn" name="next" value="checkout" class="btn btn-danger btn-lg flex-grow-1 py-3 fw-bold rounded-3 shadow-sm" disabled>
+                        Mua ngay
+                    </button>
                 </div>
-            </div>
+            </form>
+
         </div>
     </div>
 </div>
 
+<script>
+    const colorInputs = document.querySelectorAll('.color-picker');
+    const sizeInputs = document.querySelectorAll('.size-picker');
+    const addBtn = document.getElementById('addBtn');
+    const buyNowBtn = document.getElementById('buyNowBtn');
+    const form = document.getElementById('addToCartForm');
+
+    const variantData = {{ variant_data|safe }};
+
+    function updateSizeOptions(selectedColor) {
+        const colorVariants = variantData[selectedColor] || {};
+
+        sizeInputs.forEach(input => {
+            const size = input.dataset.size;
+            const label = document.querySelector(`label[for='${input.id}']`);
+            const stockSpan = label.querySelector('.stock-number');
+            const variant = colorVariants[size];
+
+            if (variant && variant.stock > 0) {
+                input.disabled = false;
+                input.dataset.url = variant.url;
+                stockSpan.textContent = `(${variant.stock})`;
+                stockSpan.style.display = 'block';
+                label.classList.remove('disabled');
+                label.classList.add('btn-outline-dark');
+            } else if (variant) {
+                input.disabled = true;
+                input.checked = false;
+                input.dataset.url = '';
+                stockSpan.textContent = '(Hết hàng)';
+                stockSpan.style.display = 'block';
+                label.classList.remove('btn-outline-dark');
+                label.classList.add('disabled');
+            } else {
+                input.disabled = true;
+                input.checked = false;
+                input.dataset.url = '';
+                stockSpan.textContent = '';
+                stockSpan.style.display = 'block';
+                label.classList.remove('btn-outline-dark');
+                label.classList.add('disabled');
+            }
+        });
+
+        addBtn.disabled = true;
+        buyNowBtn.disabled = true;
+        form.action = '';
+    }
+
+    colorInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            updateSizeOptions(this.value);
+        });
+    });
+
+    sizeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            form.action = this.dataset.url;
+            addBtn.disabled = false;
+            buyNowBtn.disabled = false;
+        });
+    });
+
+    const carousel = document.getElementById('productCarousel');
+    if (carousel) {
+        carousel.addEventListener('slid.bs.carousel', function (event) {
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            thumbnails.forEach((thumb, index) => {
+                if (index === event.to) {
+                    thumb.classList.add('active-thumbnail');
+                } else {
+                    thumb.classList.remove('active-thumbnail');
+                }
+            });
+        });
+
+        document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
+            thumb.addEventListener('click', function() {
+                const carouselInstance = bootstrap.Carousel.getInstance(carousel);
+                carouselInstance.to(index);
+            });
+        });
+    }
+</script>
+
 <style>
-    .product-image-wrapper {
-        overflow: hidden;
-        border-radius: 12px;
-        background: #f8f9fa;
-    }
-    .zoom-effect {
-        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        cursor: zoom-in;
-    }
-    .zoom-effect:hover {
-        transform: scale(1.1);
-    }
+    .product-detail-container { max-width: 960px; }
+    .product-image-wrapper { overflow: visible; border-radius: 18px; background: #f8f9fa; width: 100%; max-width: 420px; margin: 0 auto; }
+    .image-zoom-area { width: 100%; height: 420px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 12px; }
+    .product-main-image { max-width: 100%; max-height: 420px; object-fit: contain; width: auto; height: auto; transition: none; }
     
-    .breadcrumb-item + .breadcrumb-item::before {
-        content: "›";
-        font-size: 1.2rem;
-        vertical-align: middle;
+    .custom-carousel-btn {
+        width: 35px;
+        height: 35px;
+        background-color: rgba(0, 0, 0, 0.4);
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0 10px;
     }
-    
-    .nav-tabs .nav-link {
-        border: none;
-        color: #6c757d;
-    }
-    .nav-tabs .nav-link.active {
-        color: #dc3545;
-        border-bottom: 3px solid #dc3545;
-    }
-    
-    .tracking-wider {
-        letter-spacing: 1px;
-    }
+    .custom-carousel-btn:hover { background-color: rgba(0, 0, 0, 0.5); }
+
+    .carousel-control-prev { left: -20px; }
+    .carousel-control-next { right: -20px; }
+
+    .thumbnail { width: 50px; height: 50px; object-fit: cover; cursor: pointer; border: 1px solid #ddd; transition: transform 0.2s ease, border-color 0.2s ease; }
+    .thumbnail:hover { transform: scale(1.05); }
+    .active-thumbnail { border-color: #0d6efd !important; }
+    .btn-outline-dark.disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+    .size-label.disabled { background-color: #f8f9fa; border-color: #ddd; color: #6c757d; }
+    .stock-number { display: block; margin-top: 0.25rem; }
+    .btn-check:checked + .btn-outline-dark { background-color: #212529; color: #fff; border-color: #212529; }
+    .btn-check:checked + .btn-outline-dark .stock-number { color: #e9ecef !important; }
 </style>
 {% endblock %}
