@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import Product, Category, Profile, Cart, CartItem, Order, OrderItem, Brand, ProductVariant
 from .forms import RegistrationForm, UserUpdateForm, ProfileUpdateForm, ProductForm, OrderStatusForm
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count, F
+from django.db.models.functions import TruncMonth
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
 import json
@@ -37,14 +38,12 @@ def home(request, category_slug=None):
             Q(category__name__icontains=query) |
             Q(brand__name__icontains=query)
         ).distinct()
-        
     context = {
         'products': products,
         'categories': categories,
         'brands': brands,
         'selected_category': selected_category,
         'selected_brand': selected_brand,
-        # Trả về các slug hiện tại để Template có thể giữ lại trạng thái khi chuyển đổi
         'current_category_slug': cat_slug,
         'current_brand_slug': brand_slug,
     }
@@ -68,6 +67,36 @@ def admin_dashboard(request):
     low_stock_variants = ProductVariant.objects.filter(stock__lte=5).order_by('stock')[:8]
     recent_orders = Order.objects.order_by('-created_at')[:12]
 
+    revenue_by_category = OrderItem.objects.filter(order__status='Completed') \
+        .values('variant__product__category__name') \
+        .annotate(total_sales=Sum(F('price') * F('quantity'))) \
+        .order_by('-total_sales')
+    chart_category_labels = [item['variant__product__category__name'] or "Khác" for item in revenue_by_category]
+    chart_category_values = [round(float(item['total_sales']), 2) for item in revenue_by_category]
+
+    revenue_by_brand = OrderItem.objects.filter(order__status='Completed') \
+        .values('variant__product__brand__name') \
+        .annotate(total_sales=Sum(F('price') * F('quantity'))) \
+        .order_by('-total_sales')
+    chart_brand_labels = [item['variant__product__brand__name'] or "Khác" for item in revenue_by_brand]
+    chart_brand_values = [round(float(item['total_sales']), 2) for item in revenue_by_brand]
+
+    revenue_by_month = Order.objects.filter(status='Completed') \
+        .annotate(month=TruncMonth('created_at')) \
+        .values('month') \
+        .annotate(total=Sum('total_amount')) \
+        .order_by('month')
+
+    users_by_month = User.objects.annotate(month=TruncMonth('date_joined')) \
+        .values('month') \
+        .annotate(count=Count('id')) \
+        .order_by('month')
+
+    chart_revenue_labels = [item['month'].strftime("%m/%Y") for item in revenue_by_month]
+    chart_revenue_values = [float(item['total']) for item in revenue_by_month]
+    
+    chart_user_labels = [item['month'].strftime("%m/%Y") for item in users_by_month]
+    chart_user_values = [item['count'] for item in users_by_month]
     context = {
         'total_products': total_products,
         'total_variants': total_variants,
@@ -82,6 +111,14 @@ def admin_dashboard(request):
         'total_categories': total_categories,
         'total_brands': total_brands,
         'recent_orders': recent_orders,
+        'chart_revenue_labels': json.dumps(chart_revenue_labels),
+        'chart_revenue_values': json.dumps(chart_revenue_values),
+        'chart_category_labels': json.dumps(chart_category_labels),
+        'chart_category_values': json.dumps(chart_category_values),
+        'chart_brand_labels': json.dumps(chart_brand_labels),
+        'chart_brand_values': json.dumps(chart_brand_values),
+        'chart_user_labels': json.dumps(chart_user_labels),
+        'chart_user_values': json.dumps(chart_user_values),
     }
     return render(request, 'store/admin_dashboard.html', context)
 

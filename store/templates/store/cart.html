@@ -26,7 +26,6 @@
                                     <tr>
                                         <td class="ps-4 py-3">
                                             <div class="d-flex align-items-center">
-                                                <!-- SỬA: Truy cập qua item.variant.product -->
                                                 <a href="{% if item.variant.product.slug %}{% url 'product_detail' item.variant.product.slug %}{% else %}#{% endif %}">
                                                     {% if item.variant.product.image %}
                                                         <img src="{{ item.variant.product.image.url }}" alt="{{ item.variant.product.name }}" class="rounded shadow-sm" style="width: 70px; aspect-ratio: 1/1; object-fit: cover;">
@@ -35,9 +34,11 @@
                                                     {% endif %}
                                                 </a>
                                                 <div class="ms-3">
-                                                    <!-- SỬA: Hiển thị tên sản phẩm và Size -->
                                                     <h6 class="mb-1 fw-bold">{{ item.variant.product.name }}</h6>
-                                                    <div class="badge bg-light text-dark border mb-1">Size: {{ item.variant.size }}</div><br>
+                                                    <div class="d-flex gap-1 mb-1 flex-wrap">
+                                                        <span class="badge bg-light text-dark border">Size: {{ item.variant.size }}</span>
+                                                        <span class="badge bg-light text-dark border">Màu: {{ item.variant.color|default:"Mặc định" }}</span>
+                                                    </div>
                                                     <small class="text-muted">Thương hiệu: {{ item.variant.product.brand.name }}</small>
                                                 </div>
                                             </div>
