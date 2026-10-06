@@ -35,9 +35,12 @@
                         {% endif %}
                     </div>
                 {% else %}
-                    <img src="https://via.placeholder.com/600x600" class="img-fluid rounded" alt="No image">
+                    {% if product.display_image %}
+                        <img src="{{ product.display_image }}" class="img-fluid rounded product-main-image" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="https://placehold.co/600x600?text=No+image" class="img-fluid rounded" alt="No image">
+                    {% endif %}
                 {% endif %}
-
                 <div class="p-3 bg-light rounded-4 mt-4">
                     <h5 class="fw-bold mb-2">Mô tả sản phẩm</h5>
                     <p class="text-secondary mb-0" style="line-height: 1.6; font-size: 0.95rem;">
