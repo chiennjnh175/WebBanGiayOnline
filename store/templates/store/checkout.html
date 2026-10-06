@@ -75,8 +75,8 @@
                             {% for item in cart_items %}
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="position-relative">
-                                        {% if item.variant.product.image %}
-                                            <img src="{{ item.variant.product.image.url }}" class="rounded border" style="width: 60px; height: 60px; object-fit: cover;">
+                                        {% if item.variant.product.display_image %}
+                                            <img src="{{ item.variant.product.display_image }}" class="rounded border" style="width: 60px; height: 60px; object-fit: cover;">
                                         {% else %}
                                             <img src="https://via.placeholder.com/60" class="rounded border">
                                         {% endif %}

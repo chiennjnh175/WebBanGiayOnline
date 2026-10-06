@@ -54,8 +54,8 @@
             <div class="card h-100 shadow-sm border-0 p-2 transition-hover">
                 <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}#{% endif %}" class="text-decoration-none">
                     <div class="img-container mb-2">
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-img-top rounded shadow-sm" style="height: 160px; object-fit: cover;">
+                        {% if product.display_image %}
+                            <img src="{{ product.display_image }}" alt="{{ product.name }}" class="card-img-top rounded shadow-sm" style="height: 160px; object-fit: cover;">
                         {% else %}
                             <img src="https://via.placeholder.com/200x160" alt="No image" class="card-img-top rounded shadow-sm" style="height: 160px; object-fit: cover;">
                         {% endif %}

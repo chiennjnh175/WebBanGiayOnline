@@ -27,8 +27,8 @@
                                         <td class="ps-4 py-3">
                                             <div class="d-flex align-items-center">
                                                 <a href="{% if item.variant.product.slug %}{% url 'product_detail' item.variant.product.slug %}{% else %}#{% endif %}">
-                                                    {% if item.variant.product.image %}
-                                                        <img src="{{ item.variant.product.image.url }}" alt="{{ item.variant.product.name }}" class="rounded shadow-sm" style="width: 70px; aspect-ratio: 1/1; object-fit: cover;">
+                                                    {% if item.variant.product.display_image %}
+                                                        <img src="{{ item.variant.product.display_image }}" alt="{{ item.variant.product.name }}" class="rounded shadow-sm" style="width: 70px; aspect-ratio: 1/1; object-fit: cover;">
                                                     {% else %}
                                                         <img src="https://via.placeholder.com/70" alt="No image" class="rounded shadow-sm" style="width: 70px; aspect-ratio: 1/1; object-fit: cover;">
                                                     {% endif %}
