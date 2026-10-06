@@ -318,7 +318,7 @@ def cancel_order(request, order_id):
             if item.variant:
                 item.variant.stock += item.quantity
                 item.variant.save()
-        messages.success(request, 'Đã hủy đơn hàng và hoàn kho.')
+        messages.success(request, 'Đã hủy đơn hàng thành công!')
     return redirect('order_history')
 
 @login_required(login_url='login')
