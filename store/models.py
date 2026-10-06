@@ -25,6 +25,15 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     image = models.ImageField(upload_to='products/', null=True, blank=True)
+    image_url = models.URLField(max_length=500, blank=True, verbose_name="Link ảnh")
+
+    @property
+    def display_image(self):
+        if self.image_url:
+            return self.image_url
+        if self.image:
+            return self.image.url
+        return ''
 
     def save(self, *args, **kwargs):
         if not self.slug:
