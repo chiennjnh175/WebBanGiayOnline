@@ -15,6 +15,11 @@ import json
 import os
 import math
 from django.conf import settings
+from django.http import HttpResponse
+from django.db import transaction
+from django.utils.text import slugify
+import csv
+import io
 
 def home(request, category_slug=None):
     G = request.GET
@@ -268,6 +273,116 @@ def admin_dashboard(request):
         'chart_user_values': json.dumps(chart_user_values),
     }
     return render(request, 'store/admin_dashboard.html', context)
+
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_staff, login_url='home')
+def product_import_template(request):
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="mau-import-giay.csv"'
+    response.write('\ufeff')
+    writer = csv.writer(response)
+    writer.writerow(['name', 'price', 'description', 'brand', 'category', 'image_url', 'size', 'color', 'stock'])
+    writer.writerow(['Nike Air Max 90', '2500000', 'Giày thể thao chính hãng', 'Nike', 'Sneaker', 'https://example.com/nike-air-max.jpg', '40', 'Trắng', '10'])
+    writer.writerow(['Nike Air Max 90', '2500000', 'Giày thể thao chính hãng', 'Nike', 'Sneaker', 'https://example.com/nike-air-max.jpg', '41', 'Trắng', '8'])
+    return response
+
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_staff, login_url='home')
+def admin_import_products(request):
+    result = None
+    errors = []
+    if request.method == 'POST':
+        upload = request.FILES.get('csv_file')
+        if not upload:
+            errors.append('Hãy chọn file CSV cần nhập.')
+        elif upload.size > 5 * 1024 * 1024:
+            errors.append('File CSV không được vượt quá 5 MB.')
+        else:
+            try:
+                raw = upload.read()
+                try:
+                    decoded = raw.decode('utf-8-sig')
+                except UnicodeDecodeError:
+                    decoded = raw.decode('cp1258')
+                reader = csv.DictReader(io.StringIO(decoded))
+                required = {'name', 'price', 'brand', 'category', 'image_url', 'size', 'color', 'stock'}
+                headers = {header.strip().lower() for header in (reader.fieldnames or []) if header}
+                missing = sorted(required - headers)
+                if missing:
+                    errors.append('Thiếu cột bắt buộc: ' + ', '.join(missing))
+                else:
+                    rows = []
+                    for line, row in enumerate(reader, start=2):
+                        row = {str(k).strip().lower(): (v or '').strip() for k, v in row.items() if k}
+                        if not any(row.values()):
+                            continue
+                        try:
+                            name = row['name']
+                            price = int(row['price'])
+                            stock = int(row['stock'] or 0)
+                            if not name or price < 0 or stock < 0:
+                                raise ValueError('Tên phải có; giá và tồn kho không được âm.')
+                            if row['image_url'] and not row['image_url'].startswith(('https://', 'http://')):
+                                raise ValueError('image_url phải là link http:// hoặc https:// trực tiếp tới ảnh.')
+                            if not row['category']:
+                                raise ValueError('category không được để trống.')
+                            rows.append((line, row, price, stock))
+                        except (KeyError, ValueError) as exc:
+                            errors.append(f'Dòng {line}: dữ liệu không hợp lệ ({exc}).')
+                    if not errors and not rows:
+                        errors.append('File không có dòng sản phẩm nào.')
+                    if not errors:
+                        created_products = set()
+                        created_variants = 0
+                        updated_variants = 0
+                        try:
+                            with transaction.atomic():
+                                for line, row, price, stock in rows:
+                                    name = row['name']
+                                    brand = None
+                                    if row['brand']:
+                                        brand_slug = slugify(row['brand'])
+                                        brand, _ = Brand.objects.get_or_create(slug=brand_slug, defaults={'name': row['brand']})
+                                    category_slug = slugify(row['category'])
+                                    category, _ = Category.objects.get_or_create(slug=category_slug, defaults={'name': row['category']})
+                                    product_slug = slugify(name + ('-' + row['brand'] if row['brand'] else ''))
+                                    product, was_created = Product.objects.get_or_create(
+                                        slug=product_slug,
+                                        defaults={'name': name, 'price': price, 'description': row.get('description', ''),
+                                                  'brand': brand, 'category': category, 'image_url': row['image_url']},
+                                    )
+                                    if was_created:
+                                        created_products.add(product.pk)
+                                    else:
+                                        product.name = name
+                                        product.price = price
+                                        product.description = row.get('description', '')
+                                        product.brand = brand
+                                        product.category = category
+                                        product.image_url = row['image_url']
+                                        product.save()
+                                    if row['size']:
+                                        variant, was_created = ProductVariant.objects.update_or_create(
+                                            product=product, size=row['size'], color=row['color'],
+                                            defaults={'stock': stock},
+                                        )
+                                        if was_created:
+                                            created_variants += 1
+                                        else:
+                                            updated_variants += 1
+                        except Exception as exc:
+                            errors.append(f'Nhập thất bại và đã hoàn tác toàn bộ: {exc}')
+                        else:
+                            result = {
+                                'products': len(created_products),
+                                'variants_created': created_variants,
+                                'variants_updated': updated_variants,
+                            }
+            except (UnicodeDecodeError, csv.Error) as exc:
+                errors.append(f'Không đọc được CSV: {exc}')
+    return render(request, 'store/admin_import_products.html', {'result': result, 'errors': errors})
 
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.is_staff, login_url='home')

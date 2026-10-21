@@ -1,0 +1,41 @@
+{% extends 'store/base.html' %}
+{% block title %}Nhập sản phẩm từ CSV - Shoes Store{% endblock %}
+{% block content %}
+<section style="min-height:75vh;padding:165px 15px 55px;background:#f5f6f8">
+  <div style="max-width:900px;margin:0 auto;padding:28px;background:#fff;border:1px solid #eceef0">
+    <h2 style="margin:0 0 8px;color:#222">Nhập nhiều giày từ CSV</h2>
+    <p style="color:#666">Mỗi dòng là một size/màu. Những dòng có cùng tên giày và hãng sẽ được gộp thành một sản phẩm, mỗi size/màu thành một biến thể. Ảnh lấy từ URL trực tiếp, không cần tải file ảnh lên.</p>
+    <p><a href="{% url 'product_import_template' %}">Tải file CSV mẫu</a></p>
+
+    {% if errors %}
+      <div style="padding:14px 18px;margin:18px 0;background:#fff1f0;color:#a33">
+        <strong>Không nhập được file:</strong>
+        <ul style="margin:8px 0 0;padding-left:20px">{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>
+      </div>
+    {% endif %}
+    {% if result %}
+      <div style="padding:14px 18px;margin:18px 0;background:#eaf8ef;color:#27633b">
+        Đã nhập thành công: {{ result.products }} sản phẩm mới, {{ result.variants_created }} biến thể mới, cập nhật tồn kho cho {{ result.variants_updated }} biến thể đã có.
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" style="margin-top:22px">
+      {% csrf_token %}
+      <label for="csv_file" style="display:block;margin-bottom:8px;font-weight:600">Chọn file CSV (tối đa 5 MB)</label>
+      <input id="csv_file" name="csv_file" type="file" accept=".csv,text/csv" required style="margin-bottom:18px">
+      <div><button type="submit" style="padding:11px 18px;border:0;background:#f36a42;color:#fff;cursor:pointer">Nhập sản phẩm</button>
+        <a href="{% url 'admin_dashboard' %}" style="margin-left:12px">Quay lại dashboard</a></div>
+    </form>
+
+    <hr style="margin:26px 0">
+    <h4>Các cột trong file</h4>
+    <p style="color:#666;margin-bottom:8px"><code>name, price, description, brand, category, image_url, size, color, stock</code></p>
+    <ul style="color:#666;padding-left:20px">
+      <li><code>name</code>, <code>price</code>, <code>category</code>, <code>size</code>, <code>color</code>, <code>stock</code> là dữ liệu sản phẩm và biến thể.</li>
+      <li>Dùng lại cùng tên, hãng, giá, danh mục và URL ảnh trên các dòng size khác nhau.</li>
+      <li><code>image_url</code> cần là link ảnh trực tiếp bắt đầu bằng http:// hoặc https://.</li>
+      <li>Hãng và danh mục chưa có sẽ được tạo tự động. Nhập lại cùng tên/hãng sẽ cập nhật sản phẩm và tồn kho biến thể.</li>
+    </ul>
+  </div>
+</section>
+{% endblock %}

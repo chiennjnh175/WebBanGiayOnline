@@ -64,7 +64,7 @@ class ProfileUpdateForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'slug', 'price', 'description', 'brand', 'category', 'image']
+        fields = ['name', 'slug', 'price', 'description', 'brand', 'category', 'image', 'image_url']
         labels = {
             'name': 'Tên sản phẩm',
             'slug': 'Slug',
@@ -73,6 +73,7 @@ class ProductForm(forms.ModelForm):
             'brand': 'Hãng',
             'category': 'Thể loại',
             'image': 'Hình ảnh',
+            'image_url': 'Link ảnh trực tiếp',
         }
 
 

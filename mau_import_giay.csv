@@ -1,0 +1,10 @@
+name,price,description,brand,category,image_url,size,color,stock
+Nike Air Max 90,2500000,Giay the thao mau do,Nike,Sneaker,https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85,39,Do trang,5
+Nike Air Max 90,2500000,Giay the thao mau do,Nike,Sneaker,https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85,40,Do trang,8
+Nike Air Max 90,2500000,Giay the thao mau do,Nike,Sneaker,https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85,41,Do trang,6
+Adidas Ultraboost,3200000,Giay chay bo mau den,Adidas,Chay bo,https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=85,40,Den,4
+Adidas Ultraboost,3200000,Giay chay bo mau den,Adidas,Chay bo,https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=85,41,Den,7
+Adidas Ultraboost,3200000,Giay chay bo mau den,Adidas,Chay bo,https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=85,42,Den,5
+Converse Chuck Taylor,1600000,Giay canvas co thap,Converse,Canvas,https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=900&q=85,39,Trang,5
+Converse Chuck Taylor,1600000,Giay canvas co thap,Converse,Canvas,https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=900&q=85,40,Trang,5
+Converse Chuck Taylor,1600000,Giay canvas co thap,Converse,Canvas,https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=900&q=85,41,Trang,3

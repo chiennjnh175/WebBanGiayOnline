@@ -14,6 +14,8 @@
     .admin-dashboard-heading p { margin: 0; color: #777; font-size: 14px; }
     .admin-back-link { padding: 10px 15px; border: 1px solid #ddd; background: #fff; color: #444; font-size: 13px; text-decoration: none; }
     .admin-back-link:hover { border-color: #ff6c3c; color: #f05235; }
+    .admin-import-link { padding: 10px 15px; background: #f36a42; color: #fff; font-size: 13px; text-decoration: none; }
+    .admin-import-link:hover { background: #df5631; color: #fff; }
     .admin-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
     .admin-stat { position: relative; min-height: 130px; padding: 20px 22px; overflow: hidden; border: 1px solid #eceef0; background: #fff; }
     .admin-stat:after { position: absolute; top: 20px; right: 20px; width: 38px; height: 38px; border-radius: 50%; background: #fff1eb; color: #f36a42; content: ""; }
@@ -70,7 +72,10 @@
                 <h1>Tổng quan cửa hàng</h1>
                 <p>Theo dõi sản phẩm, đơn hàng, doanh thu và tồn kho.</p>
             </div>
-            <a href="{% url 'home' %}" class="admin-back-link"><span class="lnr lnr-arrow-left"></span> Về cửa hàng</a>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <a href="{% url 'admin_import_products' %}" class="admin-import-link">Nhập giày từ CSV</a>
+                <a href="{% url 'home' %}" class="admin-back-link"><span class="lnr lnr-arrow-left"></span> Về cửa hàng</a>
+            </div>
         </header>
 
         <section class="admin-stats" aria-label="Chỉ số cửa hàng">

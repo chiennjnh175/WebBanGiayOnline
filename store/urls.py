@@ -10,6 +10,8 @@ urlpatterns = [
     path('category/<slug:category_slug>/', views.home, name='products_by_category'),
     path('product/<slug:slug>/', views.product_detail, name='product_detail'),
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-panel/import-products/', views.admin_import_products, name='admin_import_products'),
+    path('admin-panel/import-products/template.csv', views.product_import_template, name='product_import_template'),
     
     path('cart/', views.cart_detail, name='cart_detail'),
     path('add-to-cart/<int:variant_id>/', views.add_to_cart, name='add_to_cart'),
