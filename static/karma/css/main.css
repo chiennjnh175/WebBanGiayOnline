@@ -2560,7 +2560,7 @@ label {
       content: "";
       height: 1px;
       width: 500px;
-      background: url(../img/logo/title-line.png) repeat;
+      background: #e5e5e5;
       top: 50%;
       right: 120%;
       transform: translateY(-50%); }
@@ -2569,7 +2569,7 @@ label {
       content: "";
       height: 1px;
       width: 500px;
-      background: url(../img/logo/title-line.png) repeat;
+      background: #e5e5e5;
       top: 50%;
       left: 120%;
       transform: translateY(-50%); }
@@ -2588,7 +2588,7 @@ label {
       content: "";
       height: 1px;
       width: 200px;
-      background: url(../img/logo/title-line.png) repeat;
+      background: #e5e5e5;
       top: 50%;
       right: 107%;
       transform: translateY(-50%); }
@@ -2597,7 +2597,7 @@ label {
       content: "";
       height: 1px;
       width: 2000px;
-      background: url(../img/logo/title-line.png) repeat;
+      background: #e5e5e5;
       top: 50%;
       left: 107%;
       transform: translateY(-50%); }
@@ -2658,7 +2658,7 @@ label {
   border-radius: 50%;
   transform: rotate(-25deg);
   position: absolute;
-  background: url(../img/logo/discount-shape.svg) no-repeat center center/cover;
+  background: #f41068;
   z-index: 5; }
   .banner-discount .offer {
     margin-top: 7px;
