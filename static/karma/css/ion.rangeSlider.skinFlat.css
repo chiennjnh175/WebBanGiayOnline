@@ -12,7 +12,22 @@
 .irs-bar,
 .irs-bar-edge,
 .irs-slider {
-    background: url(../img/sprite-skin-flat.png) repeat-x;
+    background-image: none;
+}
+.irs-line-mid,
+.irs-line-left,
+.irs-line-right {
+    background-color: #e1e4e9;
+}
+.irs-bar,
+.irs-bar-edge {
+    background-color: #ed5565;
+}
+.irs-slider {
+    background-color: #ed5565;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px #ed5565;
 }
 
 .irs {
