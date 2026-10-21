@@ -1,131 +1,153 @@
 {% extends 'store/base.html' %}
 {% load humanize %}
 
+{% block title %}Đơn mua - Shoes Store{% endblock %}
+{% block container_class %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .account-orders-page { min-height: 72vh; padding: 165px 0 56px; border-top: 4px solid #ff6c3c; background: #f5f5f5; }
+    .account-orders-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 24px; max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+    .orders-user { display: flex; align-items: center; gap: 12px; padding: 18px 10px 22px; border-bottom: 1px solid #e6e6e6; }
+    .orders-avatar { display: flex; flex: 0 0 54px; width: 54px; height: 54px; align-items: center; justify-content: center; border-radius: 50%; background: #fff0e8; color: #ff6c3c; font-size: 24px; }
+    .orders-username { color: #222; font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+    .orders-sidebar nav { padding: 16px 0; }
+    .orders-sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #555; font-size: 14px; text-decoration: none; }
+    .orders-sidebar nav a .lnr { width: 18px; color: #ff6c3c; text-align: center; }
+    .orders-sidebar nav a:hover, .orders-sidebar nav a.active { color: #ff6c3c; }
+    .orders-panel { min-height: 560px; padding: 26px 30px 32px; border: 1px solid #e8e8e8; background: #fff; }
+    .orders-heading { padding-bottom: 18px; border-bottom: 1px solid #eee; }
+    .orders-heading h1 { margin: 0 0 5px; color: #222; font-size: 23px; font-weight: 500; }
+    .orders-heading p { margin: 0; color: #777; font-size: 14px; }
+    .order-filters { display: flex; gap: 8px; overflow-x: auto; padding: 20px 0 14px; }
+    .order-filter { flex: 0 0 auto; padding: 8px 13px; border: 1px solid #e5e5e5; background: #fff; color: #555; font-size: 13px; cursor: pointer; }
+    .order-filter:hover, .order-filter.active { border-color: #ff6c3c; color: #f05235; }
+    .order-filter-count { margin-left: 4px; color: #999; }
+    .order-list { display: grid; gap: 12px; }
+    .order-card { padding: 17px 18px; border: 1px solid #eaeaea; background: #fff; }
+    .order-card-head, .order-card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .order-card-head { padding-bottom: 13px; border-bottom: 1px solid #f0f0f0; }
+    .order-card-id { color: #222; font-size: 14px; font-weight: 600; }
+    .order-card-date { margin-left: 10px; color: #888; font-size: 13px; }
+    .order-status { display: inline-block; padding: 5px 10px; font-size: 12px; white-space: nowrap; }
+    .status-pending { background: #fff5da; color: #946c00; }
+    .status-shipping { background: #e9f5ff; color: #176caa; }
+    .status-completed { background: #e8f6ed; color: #267344; }
+    .status-canceled { background: #fff0ee; color: #b34436; }
+    .order-card-bottom { padding-top: 14px; }
+    .order-card-info { color: #777; font-size: 13px; }
+    .order-card-info strong { margin-left: 8px; color: #e65b36; font-size: 17px; }
+    .order-card-actions { display: flex; gap: 9px; }
+    .order-card-actions a { padding: 8px 12px; border: 1px solid #ddd; color: #444; font-size: 12px; text-decoration: none; white-space: nowrap; }
+    .order-card-actions a:hover { border-color: #ff6c3c; color: #f05235; }
+    .order-card-actions a.cancel-link { border-color: #f0c9c3; color: #b34436; }
+    .orders-empty { padding: 55px 15px; text-align: center; color: #777; }
+    .orders-empty .lnr { display: block; margin-bottom: 14px; color: #ffad8b; font-size: 42px; }
+    .orders-empty h2 { margin-bottom: 8px; color: #333; font-size: 19px; }
+    @media (max-width: 767px) {
+        .account-orders-page { padding: 125px 0 36px; }
+        .account-orders-layout { grid-template-columns: 1fr; gap: 12px; padding: 0 15px; }
+        .orders-user { padding-top: 8px; }
+        .orders-sidebar nav { display: flex; gap: 8px; padding: 10px 0; }
+        .orders-sidebar nav a { flex: 1; justify-content: center; padding: 11px 8px; border: 1px solid #e8e8e8; background: #fff; }
+        .orders-panel { min-height: 0; padding: 22px 16px; }
+        .order-card { padding: 14px 12px; }
+        .order-card-head, .order-card-bottom { align-items: flex-start; flex-direction: column; }
+        .order-card-date { display: block; margin: 4px 0 0; }
+        .order-card-actions { width: 100%; }
+        .order-card-actions a { flex: 1; text-align: center; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4 mb-5">
-    <h2 class="mb-4 fw-bold text-center">Lịch sử đơn hàng</h2>
-
-    {% if orders %}
-    
-    <ul class="nav nav-pills justify-content-center mb-4 gap-2" id="orderTabs">
-        <li class="nav-item">
-            <button class="nav-link active px-4 rounded-pill" data-filter="all">Tất cả</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link px-4 rounded-pill text-warning" data-filter="Pending" style="background-color: transparent;">Chờ xử lý</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link px-4 rounded-pill text-info" data-filter="Shipping" style="background-color: transparent;">Đang giao hàng</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link px-4 rounded-pill text-success" data-filter="Completed" style="background-color: transparent;">Đã hoàn thành</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link px-4 rounded-pill text-danger" data-filter="Canceled" style="background-color: transparent;">Đã hủy</button>
-        </li>
-    </ul>
-
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 text-center">
-                    <thead class="table-light">
-                        <tr>
-                            <th scope="col" class="py-3">Mã đơn</th>
-                            <th scope="col" class="py-3">Ngày đặt</th>
-                            <th scope="col" class="py-3">Tổng tiền</th>
-                            <th scope="col" class="py-3">Trạng thái</th>
-                            <th scope="col" class="py-3">Chi tiết</th>
-                            <th scope="col" class="py-3">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orderTableBody">
-                        {% for order in orders %}
-                        <tr class="order-row" data-status="{{ order.status }}">
-                            <td class="fw-bold">#{{ order.id }}</td>
-                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
-                            <td class="text-danger fw-bold">{{ order.total_amount|intcomma }}$</td>
-                            <td>
-                                {% if order.status == 'Pending' %} 
-                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Chờ xử lý</span>
-                                {% elif order.status == 'Shipping' %} 
-                                    <span class="badge bg-info text-dark px-3 py-2 rounded-pill">Đang giao hàng</span>
-                                {% elif order.status == 'Completed' %} 
-                                    <span class="badge bg-success px-3 py-2 rounded-pill">Đã hoàn thành</span>
-                                {% elif order.status == 'Canceled' %} 
-                                    <span class="badge bg-danger px-3 py-2 rounded-pill">Đã hủy</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                    <i class="bi bi-eye"></i> Xem
-                                </a>
-                            </td>
-                            <td>
-                                {% if order.status == 'Pending' %}
-                                    <a href="{% url 'cancel_order' order.id %}" 
-                                       onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng #{{ order.id }} không?');" 
-                                       class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                        Hủy đơn
-                                    </a>
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <div id="noOrderMessage" class="text-center py-4 text-muted" style="display: none;">
-                    Không có đơn hàng nào ở trạng thái này.
-                </div>
+<div class="account-orders-page">
+    <div class="account-orders-layout">
+        <aside class="orders-sidebar">
+            <div class="orders-user">
+                <div class="orders-avatar" aria-hidden="true"><span class="lnr lnr-user"></span></div>
+                <div class="orders-username">{{ request.user.username }}</div>
             </div>
-        </div>
+            <nav aria-label="Tài khoản">
+                <a href="{% url 'profile' %}"><span class="lnr lnr-user"></span> Hồ sơ</a>
+                <a href="{% url 'order_history' %}" class="active" aria-current="page"><span class="lnr lnr-file-empty"></span> Đơn mua</a>
+            </nav>
+        </aside>
+
+        <section class="orders-panel">
+            <header class="orders-heading">
+                <h1>Đơn mua</h1>
+                <p>Theo dõi trạng thái và xem lại các đơn hàng của bạn.</p>
+            </header>
+
+            {% if orders %}
+            <div class="order-filters" id="orderFilters" aria-label="Lọc đơn hàng">
+                <button type="button" class="order-filter active" data-filter="all">Tất cả<span class="order-filter-count">{{ total_order_count }}</span></button>
+                <button type="button" class="order-filter" data-filter="Pending">Chờ xử lý<span class="order-filter-count">{{ status_counts.Pending }}</span></button>
+                <button type="button" class="order-filter" data-filter="Shipping">Đang giao<span class="order-filter-count">{{ status_counts.Shipping }}</span></button>
+                <button type="button" class="order-filter" data-filter="Completed">Hoàn thành<span class="order-filter-count">{{ status_counts.Completed }}</span></button>
+                <button type="button" class="order-filter" data-filter="Canceled">Đã hủy<span class="order-filter-count">{{ status_counts.Canceled }}</span></button>
+            </div>
+
+            <div class="order-list">
+                {% for order in orders %}
+                <article class="order-card" data-status="{{ order.status }}">
+                    <div class="order-card-head">
+                        <div>
+                            <span class="order-card-id">Đơn hàng #{{ order.id }}</span>
+                            <time class="order-card-date" datetime="{{ order.created_at|date:'c' }}">Đặt ngày {{ order.created_at|date:'d/m/Y · H:i' }}</time>
+                        </div>
+                        <span class="order-status {% if order.status == 'Pending' %}status-pending{% elif order.status == 'Shipping' %}status-shipping{% elif order.status == 'Completed' %}status-completed{% else %}status-canceled{% endif %}">{{ order.get_status_display }}</span>
+                    </div>
+                    <div class="order-card-bottom">
+                        <div class="order-card-info">{{ order.item_count }} mặt hàng <strong>{{ order.total_amount|intcomma }}$</strong></div>
+                        <div class="order-card-actions">
+                            <a href="{% url 'order_detail' order.id %}">Xem chi tiết</a>
+                            {% if order.status == 'Pending' %}
+                            <a class="cancel-link" href="{% url 'cancel_order' order.id %}" onclick="return confirm('Bạn có chắc muốn hủy đơn hàng #{{ order.id }} không?');">Hủy đơn</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            <div class="orders-empty" id="noOrderMessage" hidden>
+                <span class="lnr lnr-inbox" aria-hidden="true"></span>
+                <h2>Không có đơn hàng ở trạng thái này</h2>
+            </div>
+            {% else %}
+            <div class="orders-empty">
+                <span class="lnr lnr-cart" aria-hidden="true"></span>
+                <h2>Bạn chưa có đơn hàng nào</h2>
+                <p>Đơn hàng bạn đặt sẽ xuất hiện tại đây.</p>
+                <a href="{% url 'home' %}" class="primary-btn">Khám phá sản phẩm</a>
+            </div>
+            {% endif %}
+        </section>
     </div>
-    {% else %}
-    <div class="text-center py-5 bg-white shadow-sm rounded border-0">
-        <h4 class="text-muted mb-3">Bạn chưa có đơn hàng nào!</h4>
-        <a href="{% url 'home' %}" class="btn btn-primary px-4 py-2 fw-bold rounded-pill">Tiếp tục mua sắm</a>
-    </div>
-    {% endif %}
 </div>
 
+{% if orders %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const tabs = document.querySelectorAll("#orderTabs .nav-link");
-        const rows = document.querySelectorAll(".order-row");
-        const noOrderMessage = document.getElementById("noOrderMessage");
-
-        tabs.forEach(tab => {
-            tab.addEventListener("click", function(e) {
-                e.preventDefault();
-                
-                tabs.forEach(t => {
-                    t.classList.remove("active", "bg-primary", "text-white");
-                    t.style.backgroundColor = "transparent";
-                });
-                
-                this.classList.add("active");
-                this.style.backgroundColor = "";
-                const filter = this.getAttribute("data-filter");
-                let visibleCount = 0;
-
-                rows.forEach(row => {
-                    if (filter === "all" || row.getAttribute("data-status") === filter) {
-                        row.style.display = ""; 
-                        visibleCount++;
-                    } else {
-                        row.style.display = "none";
-                    }
-                });
-
-                if (visibleCount === 0) {
-                    noOrderMessage.style.display = "block";
-                } else {
-                    noOrderMessage.style.display = "none";
-                }
+(function () {
+    var filters = document.querySelectorAll('#orderFilters .order-filter');
+    var cards = document.querySelectorAll('.order-card');
+    var empty = document.getElementById('noOrderMessage');
+    filters.forEach(function (button) {
+        button.addEventListener('click', function () {
+            filters.forEach(function (filter) { filter.classList.remove('active'); });
+            button.classList.add('active');
+            var status = button.dataset.filter;
+            var visible = 0;
+            cards.forEach(function (card) {
+                var show = status === 'all' || card.dataset.status === status;
+                card.hidden = !show;
+                if (show) { visible += 1; }
             });
+            empty.hidden = visible > 0;
         });
     });
+})();
 </script>
+{% endif %}
 {% endblock %}

@@ -74,15 +74,17 @@ class Cart(models.Model):
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
-    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart_items')
+    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.IntegerField(default=1)
 
     def __str__(self):
-        return f"{self.quantity} x {self.variant}"
+        selection = f" - {self.variant.size} / {self.variant.color}" if self.variant else " - Chưa chọn size/màu"
+        return f"{self.quantity} x {self.product.name}{selection}"
     
     @property
     def total_price(self):
-        return self.variant.product.price * self.quantity
+        return self.product.price * self.quantity
     
 class Order(models.Model):
     STATUS_CHOICES = (

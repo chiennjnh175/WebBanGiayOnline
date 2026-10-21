@@ -1,120 +1,70 @@
 {% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Đăng ký - Shoes Store{% endblock %}
+
+{# Layout full-width của Karma: bỏ container và padding mặc định của base #}
+{% block container_class %}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow border-0 mt-4 mb-5">
-            <div class="card-header bg-primary text-white text-center py-3">
-                <h4 class="mb-0">TẠO TÀI KHOẢN MỚI</h4>
+<!-- Register box -->
+<section class="login_box_area section_gap">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="login_box_img">
+                    <img class="img-fluid" src="{% static 'karma/img/login.jpg' %}" alt="">
+                    <div class="hover">
+                        <h4>Đã có tài khoản?</h4>
+                        <p>Đăng nhập để xem giỏ hàng và lịch sử đơn hàng của bạn.</p>
+                        <a class="primary-btn" href="{% url 'login' %}">Đăng nhập</a>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-4">
-                <form method="POST">
-                    {% csrf_token %}
-                    
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.non_field_errors %}
-                                {{ error }}
+            <div class="col-lg-6">
+                <div class="login_form_inner register_form_inner">
+                    <h3>Tạo tài khoản</h3>
+                    <form class="row login_form" action="{% url 'register' %}" method="post" id="registerForm" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="col-md-12 form-group">
+                            {% for e in form.non_field_errors %}
+                                <small class="text-danger d-block text-left">{{ e }}</small>
                             {% endfor %}
                         </div>
-                    {% endif %}
+                        {% endif %}
 
-                    <div class="django-form-custom">
+                        {# Tự hiển thị mọi trường của RegistrationForm #}
                         {% for field in form %}
-                            <div class="mb-3 field-wrapper">
-                                <label for="{{ field.id_for_label }}" class="form-label fw-bold">
-                                    {{ field.label }}
-                                </label>
-                                
-                                <div class="position-relative">
-                                    {{ field }}
-                                </div>
-                                
-                                {% if field.help_text %}
-                                    <div class="helptext mt-1">{{ field.help_text|safe }}</div>
-                                {% endif %}
-
-                                <div class="feedback-msg mt-1">
-                                    {% if field.errors %}
-                                        <div class="invalid-feedback d-block fw-bold text-danger">
-                                            {% for error in field.errors %}
-                                                <i class="bi bi-exclamation-circle"></i> {{ error }}<br>
-                                            {% endfor %}
-                                        </div>
-                                    {% elif form.is_bound %}
-                                        <div class="valid-feedback d-block fw-bold text-success">
-                                            <i class="bi bi-check-circle-fill"></i> Hợp lệ
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
+                        <div class="col-md-12 form-group">
+                            <label class="sr-only" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% for e in field.errors %}
+                                <small class="text-danger d-block text-left mt-1">{{ e }}</small>
+                            {% endfor %}
+                        </div>
                         {% endfor %}
-                    </div>
 
-                    <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-primary py-2 fw-bold fs-5">Xác nhận đăng ký</button>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer text-center py-3 bg-light">
-                <span>Đã có tài khoản? </span><a href="{% url 'login' %}" class="fw-bold text-decoration-none">Quay lại đăng nhập</a>
+                        <div class="col-md-12 form-group">
+                            <button type="submit" class="primary-btn">Đăng ký</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+{% endblock %}
 
-<style>
-    .django-form-custom input, 
-    .django-form-custom select {
-        display: block;
-        width: 100%;
-        padding: 0.6rem 0.75rem;
-        font-size: 1rem;
-        border: 1px solid #ced4da;
-        border-radius: 0.375rem;
-        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-    }
-    
-    .django-form-custom input:focus {
-        border-color: #86b7fe;
-        outline: 0;
-        box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
-    }
-
-    .django-form-custom input.is-invalid {
-        border-color: #dc3545;
-        box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
-    }
-
-    .django-form-custom input.is-valid {
-        border-color: #198754;
-        box-shadow: 0 0 0 0.2rem rgba(25,135,84,.25);
-    }
-
-    .django-form-custom .helptext {
-        font-size: 0.85rem;
-        color: #6c757d;
-        display: block;
-    }
-    
-    .django-form-custom ul {
-        padding-left: 20px;
-        margin-bottom: 0;
-    }
-</style>
-
+{% block extra_js %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const inputs = document.querySelectorAll('.django-form-custom input');
-        
-        inputs.forEach(input => {
-            const parent = input.closest('.field-wrapper');
-            
-            if (parent.querySelector('.invalid-feedback')) {
-                input.classList.add('is-invalid');
-            } else if (parent.querySelector('.valid-feedback')) {
-                input.classList.add('is-valid');
-            }
+    // Django render input trơn, ở đây thêm class của Karma và placeholder lấy từ nhãn của trường
+    $(function () {
+        $('#registerForm .form-group').each(function () {
+            var $g = $(this);
+            var label = $.trim($g.find('label').text());
+            $g.find('input, select, textarea').addClass('form-control').attr('placeholder', label);
         });
     });
 </script>

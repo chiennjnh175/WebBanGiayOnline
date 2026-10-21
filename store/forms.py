@@ -41,6 +41,11 @@ class UserUpdateForm(forms.ModelForm):
             'email': 'Địa chỉ Email',
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'profile-input', 'placeholder': field.label})
+
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
@@ -49,6 +54,11 @@ class ProfileUpdateForm(forms.ModelForm):
             'phone': 'Số điện thoại',
             'address': 'Địa chỉ',
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'profile-input', 'placeholder': field.label})
 
 
 class ProductForm(forms.ModelForm):

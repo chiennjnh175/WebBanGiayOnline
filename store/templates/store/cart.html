@@ -1,119 +1,176 @@
 {% extends 'store/base.html' %}
-{% load humanize %}
+{% load static humanize %}
+
+{% block title %}Giỏ hàng - Shoes Store{% endblock %}
+{% block container_class %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .cart-page { padding-top: 130px; padding-bottom: 50px; }
+    .cart-page .cart_area { padding: 70px 0 30px; }
+    .cart-page-title { margin: 0 0 26px; color: #222; font-size: 28px; }
+    .cart-page .cart_inner { background: #fff; }
+    .cart-page .cart_inner .table { min-width: 680px; }
+    .cart-page .cart_inner .table thead th { white-space: nowrap; }
+    .cart-page .cart_inner .table tbody td { vertical-align: middle; }
+    .cart-product { display: flex; align-items: center; min-width: 260px; }
+    .cart-product img { width: 90px; height: 90px; object-fit: cover; margin-right: 18px; }
+    .cart-product > div { min-width: 0; }
+    .cart-product h6 { margin: 0 0 7px; color: #222; font-weight: 600; }
+    .cart-product p { margin: 0; color: #777; font-size: 13px; }
+    .cart-variant-form { margin-top: 8px; }
+    .cart-variant-form select { display: block; width: 100%; max-width: 230px; height: 34px; margin-top: 6px; padding: 4px 8px; border: 1px solid #ddd; background: #fff; color: #444; font-size: 12px; }
+    .cart-price { color: #222; font-weight: 500; white-space: nowrap; }
+    .cart-quantity { display: flex; justify-content: center; align-items: center; gap: 12px; }
+    .cart-quantity a { width: 30px; height: 30px; border: 1px solid #eee; border-radius: 50%; color: #222; display: inline-flex; align-items: center; justify-content: center; }
+    .cart-quantity a:hover { background: #ffba00; border-color: #ffba00; }
+    .cart-quantity span { min-width: 18px; text-align: center; font-weight: 600; }
+    .cart-remove { color: #999; font-size: 16px; }
+    .cart-remove:hover { color: #dc3545; }
+    .cart-summary { padding: 28px; background: #f9f9ff; }
+    .cart-summary h4 { margin-bottom: 22px; color: #222; }
+    .cart-summary-line { display: flex; justify-content: space-between; margin-bottom: 14px; color: #777; }
+    .cart-summary-total { border-top: 1px solid #eee; padding-top: 18px; margin: 20px 0; color: #222; font-size: 18px; font-weight: 600; }
+    .cart-empty { padding: 70px 20px; text-align: center; background: #f9f9ff; }
+    .cart-empty .lnr { display: block; margin-bottom: 18px; color: #ffba00; font-size: 46px; }
+    @media (max-width: 767px) {
+        .cart-page .cart_area { padding: 40px 0 20px; }
+        .cart-product img { width: 68px; height: 68px; margin-right: 12px; }
+        .cart-summary { margin-top: 24px; padding: 22px; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <h2 class="mb-4 fw-bold">Giỏ hàng</h2>
-
-    {% if items %}
-        <div class="row">
-            <div class="col-lg-8 mb-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-0">
+<div class="cart-page">
+    <section class="cart_area">
+        <div class="container">
+            <h1 class="cart-page-title">Giỏ hàng</h1>
+            {% if items %}
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="cart_inner">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light">
+                            <table class="table">
+                                <thead>
                                     <tr>
-                                        <th scope="col" class="ps-4">Sản phẩm</th>
-                                        <th scope="col" class="text-center">Đơn giá</th>
+                                        <th scope="col">Sản phẩm</th>
+                                        <th scope="col">Đơn giá</th>
                                         <th scope="col" class="text-center">Số lượng</th>
-                                        <th scope="col" class="text-center">Thành tiền</th>
-                                        <th scope="col" class="pe-4 text-end"></th>
+                                        <th scope="col">Thành tiền</th>
+                                        <th scope="col"><span class="sr-only">Thao tác</span></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for item in items %}
                                     <tr>
-                                        <td class="ps-4 py-3">
-                                            <div class="d-flex align-items-center">
-                                                <a href="{% if item.variant.product.slug %}{% url 'product_detail' item.variant.product.slug %}{% else %}#{% endif %}">
-                                                    {% if item.variant.product.display_image %}
-                                                        <img src="{{ item.variant.product.display_image }}" alt="{{ item.variant.product.name }}" class="rounded shadow-sm" style="width: 70px; aspect-ratio: 1/1; object-fit: cover;">
+                                        <td>
+                                            <div class="cart-product">
+                                                <a href="{% if item.product.slug %}{% url 'product_detail' item.product.slug %}{% else %}{% url 'home' %}{% endif %}">
+                                                    {% if item.product.display_image %}
+                                                    <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}">
                                                     {% else %}
-                                                        <img src="https://via.placeholder.com/70" alt="No image" class="rounded shadow-sm" style="width: 70px; aspect-ratio: 1/1; object-fit: cover;">
+                                                    <img src="{% static 'karma/img/cart.jpg' %}" alt="{{ item.product.name }}">
                                                     {% endif %}
                                                 </a>
-                                                <div class="ms-3">
-                                                    <h6 class="mb-1 fw-bold">{{ item.variant.product.name }}</h6>
-                                                    <div class="d-flex gap-1 mb-1 flex-wrap">
-                                                        <span class="badge bg-light text-dark border">Size: {{ item.variant.size }}</span>
-                                                        <span class="badge bg-light text-dark border">Màu: {{ item.variant.color|default:"Mặc định" }}</span>
-                                                    </div>
-                                                    <small class="text-muted">Thương hiệu: {{ item.variant.product.brand.name }}</small>
+                                                <div>
+                                                    <h6>{{ item.product.name }}</h6>
+                                                    {% if item.variant %}
+                                                    <p>Size {{ item.variant.size }}{% if item.variant.color %} · {{ item.variant.color }}{% endif %}</p>
+                                                    {% else %}
+                                                    <p class="text-warning">Chưa chọn màu và size</p>
+                                                    {% endif %}
+                                                    <form class="cart-variant-form" method="post" action="{% url 'select_cart_variant' item.id %}">
+                                                        {% csrf_token %}
+                                                        <select name="color" class="cart-color-select" required aria-label="Chọn màu cho {{ item.product.name }}">
+                                                            <option value="" disabled {% if not item.variant %}selected{% endif %}>Chọn màu</option>
+                                                            {% for color in item.color_options %}
+                                                            <option value="{{ color.value }}" {% if item.variant and item.selected_color == color.value %}selected{% endif %}>{{ color.label }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        <select name="size" class="cart-size-select" required aria-label="Chọn kích cỡ cho {{ item.product.name }}">
+                                                            <option value="" disabled {% if not item.variant %}selected{% endif %}>Chọn size</option>
+                                                            {% for variant in item.available_variants %}
+                                                            <option value="{{ variant.size }}" data-color="{{ variant.color|default:'__default__' }}" {% if item.variant_id == variant.id %}selected{% endif %}>Size {{ variant.size }} (còn {{ variant.stock }})</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        <button class="btn btn-sm btn-outline-dark mt-2" type="submit">{% if item.variant %}Đổi lựa chọn{% else %}Chọn màu và size{% endif %}</button>
+                                                    </form>
                                                 </div>
                                             </div>
                                         </td>
-                                        
-                                        <!-- SỬA: Đơn giá từ product -->
-                                        <td class="text-center">{{ item.variant.product.price|intcomma }}$</td>
-                                        
-                                        <td class="text-center">
-                                            <div class="d-flex justify-content-center align-items-center gap-2">
-                                                <!-- SỬA: Dùng item.id cho URL tăng/giảm -->
-                                                <a href="{% url 'decrease_cart_item' item.id %}" class="btn btn-sm btn-outline-secondary px-2" style="border-radius: 8px;">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
-                                                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
-                                                    </svg>
-                                                </a>
-        
-                                                <span class="fw-bold fs-5 px-2">{{ item.quantity }}</span>
-        
-                                                <a href="{% url 'increase_cart_item' item.id %}" class="btn btn-sm btn-outline-secondary px-2" style="border-radius: 8px;">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                                                    </svg>
-                                                </a>
+                                        <td><span class="cart-price">{{ item.product.price|intcomma }}$</span></td>
+                                        <td>
+                                            <div class="cart-quantity">
+                                                <a href="{% url 'decrease_cart_item' item.id %}" aria-label="Giảm số lượng" title="Giảm số lượng"><i class="lnr lnr-chevron-down"></i></a>
+                                                <span>{{ item.quantity }}</span>
+                                                <a href="{% url 'increase_cart_item' item.id %}" aria-label="Tăng số lượng" title="Tăng số lượng"><i class="lnr lnr-chevron-up"></i></a>
                                             </div>
                                         </td>
-                                        
-                                        <td class="text-center text-danger fw-bold">{{ item.total_price|intcomma }}$</td>
-                                        
-                                        <td class="pe-4 text-end">
-                                            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-outline-danger" title="Xóa khỏi giỏ hàng">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-                                                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.813 1H3.188l.836 10.433A1 1 0 0 0 5.02 15h5.96a1 1 0 0 0 .997-.92l.836-10.433ZM5.5 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5ZM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5Zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0Z"/>
-                                                </svg>
-                                            </a>
-                                        </td>
+                                        <td><span class="cart-price">{{ item.total_price|intcomma }}$</span></td>
+                                        <td><a href="{% url 'remove_from_cart' item.id %}" class="cart-remove" title="Xóa sản phẩm" aria-label="Xóa {{ item.product.name }} khỏi giỏ"><i class="ti-trash"></i></a></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
+                        <div class="d-flex justify-content-between flex-wrap mt-3">
+                            <a href="{% url 'home' %}" class="gray_btn">Tiếp tục mua sắm</a>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm sticky-top" style="top: 80px;">
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold border-bottom pb-3 mb-4">Tóm tắt đơn hàng</h5>
-                        
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="text-muted">Tổng số lượng:</span>
-                            <span class="fw-bold">{{ cart_count }}</span>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between mb-4">
-                            <span class="text-muted">Tạm tính:</span>
-                            <span class="fw-bold">{{ total_cart_price|intcomma }}$</span>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center border-top pt-3 mb-4">
-                            <span class="fs-5 fw-bold">Tổng cộng:</span>
-                            <span class="fs-4 fw-bold text-danger">{{ total_cart_price|intcomma }}$</span>
-                        </div>
-                        
-                        <a href="{% url 'checkout' %}" class="btn btn-dark w-100 py-2 fs-5 text-uppercase fw-bold">Đặt hàng</a>
-                    </div>
+                <div class="col-lg-4 mt-4 mt-lg-0">
+                    <aside class="cart-summary">
+                        <h4>Tóm tắt đơn hàng</h4>
+                        <div class="cart-summary-line"><span>Số lượng sản phẩm</span><span>{{ cart_count }}</span></div>
+                        <div class="cart-summary-line"><span>Tạm tính</span><span>{{ total_cart_price|intcomma }}$</span></div>
+                        <div class="cart-summary-line"><span>Phí vận chuyển</span><span>Tính khi đặt hàng</span></div>
+                        <div class="cart-summary-line cart-summary-total"><span>Tổng cộng</span><span>{{ total_cart_price|intcomma }}$</span></div>
+                        {% if has_unselected %}
+                        <button class="primary-btn w-100 text-center" type="button" disabled>Chọn màu và size để đặt hàng</button>
+                        {% else %}
+                        <a href="{% url 'checkout' %}" class="primary-btn w-100 text-center">Tiến hành đặt hàng</a>
+                        {% endif %}
+                    </aside>
                 </div>
             </div>
+            {% else %}
+            <div class="cart-empty">
+                <span class="lnr lnr-cart"></span>
+                <h3>Giỏ hàng của bạn đang trống</h3>
+                <a href="{% url 'home' %}" class="primary-btn">Khám phá sản phẩm</a>
+            </div>
+            {% endif %}
         </div>
-    {% else %}
-        <div class="text-center py-5 bg-white shadow-sm rounded border-0">
-            <h4 class="text-muted mb-3">Giỏ hàng của bạn đang trống!</h4>
-            <a href="{% url 'home' %}" class="btn btn-primary px-4 py-2 fw-bold">Về trang chủ mua sắm</a>
-        </div>
-    {% endif %}
+    </section>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    document.querySelectorAll('.cart-variant-form').forEach(function (form) {
+        var colorSelect = form.querySelector('.cart-color-select');
+        var sizeSelect = form.querySelector('.cart-size-select');
+
+        function filterSizes(resetInvalid) {
+            var color = colorSelect.value;
+            var selectedStillValid = false;
+            Array.prototype.forEach.call(sizeSelect.options, function (option) {
+                if (!option.value) { return; }
+                var matchesColor = !!color && option.dataset.color === color;
+                option.hidden = !matchesColor;
+                option.disabled = !matchesColor;
+                if (matchesColor && option.selected) { selectedStillValid = true; }
+            });
+            sizeSelect.disabled = !color;
+            if (resetInvalid && !selectedStillValid) { sizeSelect.value = ''; }
+        }
+
+        colorSelect.addEventListener('change', function () { filterSizes(true); });
+        filterSizes(false);
+    });
+})();
+</script>
 {% endblock %}

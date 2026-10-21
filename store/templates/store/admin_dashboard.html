@@ -1,272 +1,212 @@
 {% extends 'store/base.html' %}
+{% load humanize %}
+
+{% block title %}Tổng quan quản trị - Shoes Store{% endblock %}
+{% block container_class %}{% endblock %}
 
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .admin-dashboard-page { min-height: 75vh; padding: 165px 0 55px; background: #f5f6f8; }
+    .admin-dashboard-container { max-width: 1500px; margin: 0 auto; padding: 0 24px; }
+    .admin-dashboard-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 25px; }
+    .admin-dashboard-heading h1 { margin: 0 0 5px; color: #222; font-size: 27px; font-weight: 600; }
+    .admin-dashboard-heading p { margin: 0; color: #777; font-size: 14px; }
+    .admin-back-link { padding: 10px 15px; border: 1px solid #ddd; background: #fff; color: #444; font-size: 13px; text-decoration: none; }
+    .admin-back-link:hover { border-color: #ff6c3c; color: #f05235; }
+    .admin-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+    .admin-stat { position: relative; min-height: 130px; padding: 20px 22px; overflow: hidden; border: 1px solid #eceef0; background: #fff; }
+    .admin-stat:after { position: absolute; top: 20px; right: 20px; width: 38px; height: 38px; border-radius: 50%; background: #fff1eb; color: #f36a42; content: ""; }
+    .admin-stat-label { margin-bottom: 12px; color: #777; font-size: 13px; }
+    .admin-stat-value { color: #222; font-size: 27px; font-weight: 600; line-height: 1.1; }
+    .admin-stat-note { margin-top: 8px; color: #999; font-size: 12px; }
+    .admin-stat.revenue .admin-stat-value { color: #e85e37; }
+    .admin-stat.pending:after { background: #fff5da; }
+    .admin-status-strip { display: flex; flex-wrap: wrap; gap: 20px; padding: 15px 20px; margin-bottom: 18px; border: 1px solid #eceef0; background: #fff; }
+    .admin-status-item { display: flex; align-items: center; gap: 8px; color: #666; font-size: 13px; }
+    .admin-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #e9ad26; }
+    .admin-status-dot.shipping { background: #3993cf; }
+    .admin-status-dot.completed { background: #45a76b; }
+    .admin-status-dot.canceled { background: #d96b61; }
+    .admin-dashboard-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
+    .admin-panel { min-width: 0; padding: 20px; border: 1px solid #eceef0; background: #fff; }
+    .admin-panel h2 { margin: 0 0 5px; color: #333; font-size: 16px; font-weight: 600; }
+    .admin-panel-subtitle { margin-bottom: 16px; color: #999; font-size: 12px; }
+    .admin-chart-wrap { position: relative; height: 260px; }
+    .admin-lists-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .admin-table { width: 100%; margin: 0; border-collapse: collapse; }
+    .admin-table th { padding: 10px 8px; border-bottom: 1px solid #eee; color: #888; font-size: 11px; font-weight: 500; text-align: left; text-transform: uppercase; white-space: nowrap; }
+    .admin-table td { padding: 11px 8px; border-bottom: 1px solid #f1f1f1; color: #555; font-size: 13px; vertical-align: middle; }
+    .admin-table tr:last-child td { border-bottom: 0; }
+    .admin-stock-low { color: #c34e3b !important; font-weight: 600; }
+    .admin-order-status { color: #777; white-space: nowrap; }
+    .admin-empty { padding: 26px 10px; color: #888; font-size: 13px; text-align: center; }
+    @media (max-width: 991px) {
+        .admin-dashboard-grid { grid-template-columns: 1fr 1fr; }
+        .admin-stats { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 767px) {
+        .admin-dashboard-page { padding: 125px 0 36px; }
+        .admin-dashboard-container { padding: 0 15px; }
+        .admin-dashboard-heading { align-items: flex-start; flex-direction: column; }
+        .admin-dashboard-heading h1 { font-size: 23px; }
+        .admin-stats { gap: 10px; }
+        .admin-stat { min-height: 115px; padding: 16px; }
+        .admin-stat-value { font-size: 22px; }
+        .admin-stat:after { top: 14px; right: 14px; width: 25px; height: 25px; }
+        .admin-status-strip { gap: 12px 18px; }
+        .admin-dashboard-grid, .admin-lists-grid { grid-template-columns: 1fr; }
+        .admin-panel { padding: 17px 14px; }
+        .admin-chart-wrap { height: 235px; }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="d-flex align-items-center justify-content-between mb-3">
+<div class="admin-dashboard-page">
+    <div class="admin-dashboard-container">
+        <header class="admin-dashboard-heading">
             <div>
-                <h1 class="h3">DASHBOARD</h1>
+                <h1>Tổng quan cửa hàng</h1>
+                <p>Theo dõi sản phẩm, đơn hàng, doanh thu và tồn kho.</p>
             </div>
-            <a href="{% url 'home' %}" class="btn btn-outline-secondary">Quay về cửa hàng</a>
-        </div>
-    </div>
-</div>
+            <a href="{% url 'home' %}" class="admin-back-link"><span class="lnr lnr-arrow-left"></span> Về cửa hàng</a>
+        </header>
 
-<div class="row g-3 mb-4">
-    <div class="col-sm-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-uppercase text-muted">Sản phẩm</h6>
-                <h2 class="display-6 mb-0">{{ total_products }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-uppercase text-muted">Tổng đơn hàng</h6>
-                <h2 class="display-6 mb-0">{{ total_orders }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-uppercase text-muted">Doanh thu</h6>
-                <h2 class="display-6 mb-0 text-success">${{ completed_revenue|floatformat:0 }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-uppercase text-muted">Đơn chờ xử lý</h6>
-                <h2 class="display-6 mb-0 text-warning">{{ pending_orders }}</h2>
-            </div>
-        </div>
-    </div>
-</div>
+        <section class="admin-stats" aria-label="Chỉ số cửa hàng">
+            <article class="admin-stat">
+                <div class="admin-stat-label">Sản phẩm</div>
+                <div class="admin-stat-value">{{ total_products }}</div>
+                <div class="admin-stat-note">{{ total_variants }} size/màu · {{ total_categories }} danh mục · {{ total_brands }} hãng</div>
+            </article>
+            <article class="admin-stat">
+                <div class="admin-stat-label">Khách hàng</div>
+                <div class="admin-stat-value">{{ total_users }}</div>
+                <div class="admin-stat-note">Tài khoản khách hàng</div>
+            </article>
+            <article class="admin-stat revenue">
+                <div class="admin-stat-label">Doanh thu đã hoàn thành</div>
+                <div class="admin-stat-value">{{ completed_revenue|intcomma }}$</div>
+                <div class="admin-stat-note">Tính từ các đơn hoàn thành</div>
+            </article>
+            <article class="admin-stat pending">
+                <div class="admin-stat-label">Đơn chờ xử lý</div>
+                <div class="admin-stat-value">{{ pending_orders }}</div>
+                <div class="admin-stat-note">Trong tổng số {{ total_orders }} đơn hàng</div>
+            </article>
+        </section>
 
-<div class="row g-3 mb-4">
-    <div class="col-sm-6 col-xl-4">
-        <div class="card shadow-sm h-100 border-start border-info border-4">
-            <div class="card-body">
-                <h6 class="text-uppercase text-muted">Đang giao hàng</h6>
-                <h2 class="display-6 mb-0">{{ shipping_orders }}</h2>
-            </div>
+        <div class="admin-status-strip" aria-label="Trạng thái đơn hàng">
+            <div class="admin-status-item"><span class="admin-status-dot"></span> Chờ xử lý <strong>{{ pending_orders }}</strong></div>
+            <div class="admin-status-item"><span class="admin-status-dot shipping"></span> Đang giao <strong>{{ shipping_orders }}</strong></div>
+            <div class="admin-status-item"><span class="admin-status-dot completed"></span> Hoàn thành <strong>{{ completed_orders }}</strong></div>
+            <div class="admin-status-item"><span class="admin-status-dot canceled"></span> Đã hủy <strong>{{ canceled_orders }}</strong></div>
         </div>
-    </div>
-    <div class="col-sm-6 col-xl-4">
-        <div class="card shadow-sm h-100 border-start border-success border-4">
-            <div class="card-body">
-                <h6 class="text-uppercase text-muted">Đã hoàn thành</h6>
-                <h2 class="display-6 mb-0">{{ completed_orders }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xl-4">
-        <div class="card shadow-sm h-100 border-start border-danger border-4">
-            <div class="card-body">
-                <h6 class="text-uppercase text-muted">Đã hủy</h6>
-                <h2 class="display-6 mb-0">{{ canceled_orders }}</h2>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row g-3 mb-4">
-    <div class="col-lg-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title mb-4">Doanh thu theo thể loại tháng 5/2026</h5>
-                <div style="position: relative; height:250px;">
-                    <canvas id="revenueChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title mb-4">Doanh thu theo hãng tháng 5/2026</h5>
-                <div style="position: relative; height:250px;">
-                    <canvas id="brandChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title mb-4">Người dùng mới</h5>
-                <div style="position: relative; height:250px;">
-                    <canvas id="userChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        <section class="admin-dashboard-grid" aria-label="Biểu đồ cửa hàng">
+            <article class="admin-panel">
+                <h2>Doanh thu theo thể loại</h2>
+                <div class="admin-panel-subtitle">Các đơn đã hoàn thành</div>
+                <div class="admin-chart-wrap"><canvas id="revenueChart"></canvas></div>
+            </article>
+            <article class="admin-panel">
+                <h2>Doanh thu theo hãng</h2>
+                <div class="admin-panel-subtitle">Các đơn đã hoàn thành</div>
+                <div class="admin-chart-wrap"><canvas id="brandChart"></canvas></div>
+            </article>
+            <article class="admin-panel">
+                <h2>Người dùng mới</h2>
+                <div class="admin-panel-subtitle">Số tài khoản đăng ký theo tháng</div>
+                <div class="admin-chart-wrap"><canvas id="userChart"></canvas></div>
+            </article>
+        </section>
 
-<div class="row g-3 mb-4">
-    <div class="col-lg-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">Hàng tồn thấp</h5>
-                <p class="text-muted">Các biến thể có số lượng còn lại thấp (≤ 5).</p>
+        <section class="admin-lists-grid">
+            <article class="admin-panel">
+                <h2>Biến thể sắp hết hàng</h2>
+                <div class="admin-panel-subtitle">Số lượng tồn kho từ 5 sản phẩm trở xuống</div>
                 {% if low_stock_variants %}
-                    <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Sản phẩm</th>
-                                    <th>Size</th>
-                                    <th>Màu</th>
-                                    <th>Kho</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for variant in low_stock_variants %}
-                                    <tr>
-                                        <td>{{ variant.product.name }}</td>
-                                        <td>{{ variant.size }}</td>
-                                        <td>{{ variant.color|default:'Mặc định' }}</td>
-                                        <td>{{ variant.stock }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <p class="mb-0">Không có biến thể sắp hết hàng.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">Đơn hàng gần nhất</h5>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead><tr><th>Sản phẩm</th><th>Size</th><th>Màu</th><th>Tồn kho</th></tr></thead>
+                        <tbody>
+                            {% for variant in low_stock_variants %}
+                            <tr>
+                                <td>{{ variant.product.name }}</td>
+                                <td>{{ variant.size }}</td>
+                                <td>{{ variant.color|default:'Mặc định' }}</td>
+                                <td class="{% if variant.stock <= 5 %}admin-stock-low{% endif %}">{{ variant.stock }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}<div class="admin-empty">Hiện không có biến thể sắp hết hàng.</div>{% endif %}
+            </article>
+
+            <article class="admin-panel">
+                <h2>Đơn hàng gần đây</h2>
+                <div class="admin-panel-subtitle">12 đơn mới nhất</div>
                 {% if recent_orders %}
-                    <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Khách hàng</th>
-                                    <th>Trạng thái</th>
-                                    <th>Tổng</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for order in recent_orders %}
-                                    <tr>
-                                        <td>{{ order.id }}</td>
-                                        <td>{{ order.customer_name }}</td>
-                                        <td>{{ order.status }}</td>
-                                        <td>${{ order.total_amount|floatformat:0 }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <p class="mb-0">Chưa có đơn hàng nào.</p>
-                {% endif %}
-            </div>
-        </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Trạng thái</th><th>Tổng tiền</th></tr></thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>{{ order.customer_name }}</td>
+                                <td class="admin-order-status">{{ order.get_status_display }}</td>
+                                <td>{{ order.total_amount|intcomma }}$</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}<div class="admin-empty">Chưa có đơn hàng.</div>{% endif %}
+            </article>
+        </section>
     </div>
 </div>
 
 <script>
-    Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+(function () {
+    if (typeof Chart === 'undefined') { return; }
+    Chart.defaults.font.family = "'Roboto', 'Segoe UI', sans-serif";
+    Chart.defaults.color = '#777';
+    var palette = ['#ff6c3c', '#ffba00', '#4b91c8', '#4ca873', '#8b73bd', '#e5799a', '#67b8bd'];
 
-    const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
-    new Chart(ctxRevenue, {
-        type: 'doughnut',
-        data: {
-            labels: {{ chart_category_labels|safe }},
-            datasets: [{
-                label: 'Doanh thu ($)',
-                data: {{ chart_category_values|safe }},
-                backgroundColor: [
-                    '#0d6efd', '#198754', '#ffc107', '#dc3545', '#6610f2', '#0dcaf0'
-                ],
-                hoverOffset: 15
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
+    function makeBreakdownChart(id, type, labels, values) {
+        new Chart(document.getElementById(id), {
+            type: type,
+            data: { labels: labels, datasets: [{ data: values, backgroundColor: palette, borderWidth: 0, hoverOffset: 7 }] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } },
+                    tooltip: { callbacks: { label: function (context) { return ' ' + context.label + ': ' + Number(context.raw).toLocaleString() + '$'; } } }
                 }
             }
-        }
-    });
+        });
+    }
 
-    const ctxBrand = document.getElementById('brandChart').getContext('2d');
-    new Chart(ctxBrand, {
-        type: 'pie',
-        data: {
-            labels: {{ chart_brand_labels|safe }},
-            datasets: [{
-                data: {{ chart_brand_values|safe }},
-                backgroundColor: [
-                    '#20c997', '#fd7e14', '#6f42c1', '#e83e8c', '#007bff', '#adb5bd'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                },
-                tooltip: {
-                    callbacks: {
-                        label: (context) => ` ${context.label}: $${context.raw.toLocaleString()}`
-                    }
-                }
-            }
-        }
-    });
+    makeBreakdownChart('revenueChart', 'doughnut', {{ chart_category_labels|safe }}, {{ chart_category_values|safe }});
+    makeBreakdownChart('brandChart', 'doughnut', {{ chart_brand_labels|safe }}, {{ chart_brand_values|safe }});
 
-    const ctxUser = document.getElementById('userChart').getContext('2d');
-    new Chart(ctxUser, {
+    new Chart(document.getElementById('userChart'), {
         type: 'bar',
-        data: {
-            labels: {{ chart_user_labels|safe }},
-            datasets: [{
-                label: 'Người dùng mới',
-                data: {{ chart_user_values|safe }},
-                backgroundColor: '#198754',
-                borderRadius: 5
-            }]
-        },
+        data: { labels: {{ chart_user_labels|safe }}, datasets: [{ label: 'Tài khoản mới', data: {{ chart_user_values|safe }}, backgroundColor: '#ff9a75', borderRadius: 4, maxBarThickness: 34 }] },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
+            plugins: { legend: { display: false } },
             scales: {
-                y: { 
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1,
-                        precision: 0
-                    }
-                },
+                y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#f0f0f0' } },
                 x: { grid: { display: false } }
             }
         }
     });
+})();
 </script>
 {% endblock %}

@@ -1,118 +1,128 @@
-{% extends 'store/base.html' %} 
-{% load humanize %}
+{% extends 'store/base.html' %}
+{% load static humanize %}
+
+{% block title %}{% if order_completed %}Đặt hàng thành công{% else %}Thanh toán{% endif %} - Shoes Store{% endblock %}
+{% block container_class %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .checkout-page { padding-top: 130px; padding-bottom: 50px; }
+    .checkout-page .checkout_area { padding: 65px 0 20px; }
+    .checkout-page .billing_details h3 { margin-bottom: 24px; }
+    .checkout-title { margin: 0 0 28px; color: #222; font-size: 28px; }
+    .checkout-page .checkout-card { padding: 30px; background: #fff; border: 1px solid #eee; }
+    .checkout-page .contact_form .form-group { margin-bottom: 20px; }
+    .checkout-page .contact_form label { display: block; margin-bottom: 8px; color: #222; font-weight: 500; }
+    .checkout-page .contact_form .form-control { height: 48px; border: 1px solid #eee; border-radius: 0; padding: 10px 14px; }
+    .checkout-page .contact_form textarea.form-control { height: auto; min-height: 115px; resize: vertical; }
+    .checkout-page .contact_form .form-control:focus { border-color: #ffba00; box-shadow: none; }
+    .checkout-page .order_box { padding: 30px; background: #f9f9ff; }
+    .checkout-page .order_box h2 { margin-bottom: 22px; }
+    .checkout-page .order_box .list li a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 8px 0; line-height: 1.4; }
+    .checkout-page .order_box .list li a .middle { margin-left: auto; white-space: nowrap; }
+    .checkout-page .order_box .list li a .last { min-width: 90px; text-align: right; }
+    .checkout-page .order-product-meta { display: block; margin-top: 4px; color: #888; font-size: 12px; }
+    .checkout-page .payment_item { margin: 22px 0; }
+    .checkout-page .payment_item p { padding-left: 28px; }
+    .checkout-page .checkout-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 26px; }
+    .checkout-page .checkout-actions .primary-btn { border: 0; cursor: pointer; }
+    .checkout-success { max-width: 760px; margin: 0 auto; padding: 48px 36px; background: #f9f9ff; text-align: center; }
+    .checkout-success .lnr { display: inline-block; margin-bottom: 18px; color: #28a745; font-size: 58px; }
+    .checkout-success h2 { margin-bottom: 10px; }
+    .checkout-success .success-details { margin: 26px 0; padding: 20px; background: #fff; text-align: left; }
+    @media (max-width: 767px) {
+        .checkout-page { padding-top: 110px; }
+        .checkout-page .checkout_area { padding-top: 40px; }
+        .checkout-page .checkout-card, .checkout-page .order_box { padding: 22px; }
+        .checkout-page .checkout-actions { align-items: stretch; flex-direction: column-reverse; }
+        .checkout-page .checkout-actions > * { width: 100%; text-align: center; }
+        .checkout-success { padding: 36px 22px; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    {% if order_completed %}
-        <div class="row justify-content-center">
-            <div class="col-md-7 text-center">
-                <div class="card border-0 shadow-sm p-5">
-                    <div class="mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-check-circle-fill text-success" viewBox="0 0 16 16">
-                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-                        </svg>
-                    </div>
-                    <h2 class="fw-bold text-success">Đặt hàng thành công!</h2>
-                    <p class="text-muted fs-5">Cảm ơn bạn đã tin tưởng Zhopee.</p>
-                    <hr class="my-4">
-                    <div class="text-start bg-light p-4 rounded mb-4">
-                        <p>Mã đơn hàng: <strong>#{{ order.id }}</strong></p>
-                        <p>Tổng thanh toán: <strong class="text-danger">${{ order.total_amount|intcomma }}</strong></p>
-                        <p>Số điện thoại nhận hàng: <strong>{{ order.phone }}</strong></p>
-                        <p class="mb-0 text-secondary small"><i>* Chúng tôi sẽ sớm liên hệ với bạn để xác nhận đơn hàng.</i></p>
-                    </div>
-                    <a href="{% url 'home' %}" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold">Tiếp tục mua sắm</a>
+<div class="checkout-page">
+    <section class="checkout_area">
+        <div class="container">
+            {% if order_completed %}
+            <div class="checkout-success">
+                <span class="lnr lnr-checkmark-circle" aria-hidden="true"></span>
+                <h2>Đặt hàng thành công!</h2>
+                <p class="text-muted">Cảm ơn bạn đã mua sắm tại Shoes Store. Chúng tôi sẽ sớm liên hệ để xác nhận đơn hàng.</p>
+                <div class="success-details">
+                    <p>Mã đơn hàng: <strong>#{{ order.id }}</strong></p>
+                    <p>Tổng thanh toán: <strong>{{ order.total_amount|intcomma }}$</strong></p>
+                    <p class="mb-0">Số điện thoại nhận hàng: <strong>{{ order.phone }}</strong></p>
                 </div>
+                <a href="{% url 'home' %}" class="primary-btn">Tiếp tục mua sắm</a>
             </div>
-        </div>
-
-    {% else %}
-        <h2 class="mb-4 fw-bold"><i class="bi bi-credit-card-2-back me-2"></i>Thanh toán đơn hàng</h2>
-        
-        <div class="row g-4">
-            <div class="col-lg-7">
-                <div class="card border-0 shadow-sm p-4">
-                    <h4 class="mb-4 fw-bold border-bottom pb-2">Thông tin nhận hàng</h4>
-                    <form method="POST" action="{% url 'checkout' %}">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Họ và tên người nhận</label>
-                            <input type="text" name="customer_name" class="form-control form-control-lg fs-6" required 
-                                   placeholder="Nhập họ tên..."
-                                   value="{{ request.user.first_name }} {{ request.user.last_name }}">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Số điện thoại</label>
-                            <input type="text" name="phone" class="form-control form-control-lg fs-6" required 
-                                   placeholder="Số điện thoại liên lạc..."
-                                   value="{{ profile.phone|default_if_none:'' }}">
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">Địa chỉ giao hàng</label>
-                            <textarea name="address" class="form-control form-control-lg fs-6" required rows="3" 
-                                      placeholder="Địa chỉ cụ thể (Số nhà, đường, phường/xã...)">{{ profile.address|default_if_none:'' }}</textarea>
-                        </div>
-
-                        <div class="bg-light p-3 rounded mb-4">
-                            <p class="mb-0 small text-muted"><i class="bi bi-info-circle me-1"></i> Phương thức thanh toán: <strong>Thanh toán khi nhận hàng (COD)</strong></p>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold py-3 text-uppercase shadow-sm mt-2">
-                            Xác nhận đặt hàng
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="col-lg-5">
-                <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
-                    <div class="card-body p-4">
-                        <h4 class="mb-4 fw-bold border-bottom pb-2">Đơn hàng của bạn</h4>
-                        <div class="order-summary mb-4" style="max-height: 400px; overflow-y: auto;">
-                            {% for item in cart_items %}
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="position-relative">
-                                        {% if item.variant.product.display_image %}
-                                            <img src="{{ item.variant.product.display_image }}" class="rounded border" style="width: 60px; height: 60px; object-fit: cover;">
-                                        {% else %}
-                                            <img src="https://via.placeholder.com/60" class="rounded border">
-                                        {% endif %}
-                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary">
-                                            {{ item.quantity }}
-                                        </span>
-                                    </div>
-                                    <div class="ms-3 flex-grow-1">
-                                        <h6 class="mb-0 fw-bold">{{ item.variant.product.name }}</h6>
-                                        <small class="text-muted">${{ item.variant.product.price|intcomma }} x {{ item.quantity }}</small>
-                                    </div>
-                                    <div class="text-end">
-                                        <span class="fw-bold text-dark">${{ item.total_price|intcomma }}</span>
-                                    </div>
+            {% else %}
+            <div class="billing_details">
+                <h1 class="checkout-title">Thanh toán</h1>
+                <div class="row">
+                    <div class="col-lg-7">
+                        <div class="checkout-card">
+                            <h3>Thông tin nhận hàng</h3>
+                            <form class="contact_form" method="post" action="{% url 'checkout' %}">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="customer_name">Họ và tên người nhận</label>
+                                    <input id="customer_name" type="text" name="customer_name" class="form-control" required autocomplete="name" placeholder="Nhập họ và tên"
+                                           value="{{ request.user.first_name }}{% if request.user.last_name %} {{ request.user.last_name }}{% endif %}">
                                 </div>
-                            {% endfor %}
+                                <div class="form-group">
+                                    <label for="phone">Số điện thoại</label>
+                                    <input id="phone" type="tel" name="phone" class="form-control" required autocomplete="tel" placeholder="Nhập số điện thoại"
+                                           value="{{ profile.phone|default_if_none:'' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="address">Địa chỉ giao hàng</label>
+                                    <textarea id="address" name="address" class="form-control" required autocomplete="street-address" rows="4" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố">{{ profile.address|default_if_none:'' }}</textarea>
+                                </div>
+                                <div class="payment_item active">
+                                    <div class="radion_btn">
+                                        <input type="radio" id="payment_cod" name="payment_method" checked disabled>
+                                        <label for="payment_cod">Thanh toán khi nhận hàng (COD)</label>
+                                        <div class="check"></div>
+                                    </div>
+                                    <p>Thanh toán trực tiếp cho đơn vị giao hàng khi nhận sản phẩm.</p>
+                                </div>
+                                <div class="checkout-actions">
+                                    <a href="{% url 'cart_detail' %}" class="gray_btn">Quay lại giỏ hàng</a>
+                                    <button type="submit" class="primary-btn">Xác nhận đặt hàng</button>
+                                </div>
+                            </form>
                         </div>
+                    </div>
 
-                        <div class="border-top pt-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Tạm tính:</span>
-                                <span>${{ total_amount|intcomma }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-3">
-                                <span class="text-muted">Phí vận chuyển:</span>
-                                <span class="text-success">Miễn phí</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                                <span class="fs-5 fw-bold">Tổng cộng:</span>
-                                <span class="fs-3 fw-bold text-danger">${{ total_amount|intcomma }}</span>
-                            </div>
+                    <div class="col-lg-5 mt-4 mt-lg-0">
+                        <div class="order_box">
+                            <h2>Đơn hàng của bạn</h2>
+                            <ul class="list">
+                                <li><a href="#"><span>Sản phẩm</span><span class="last">Tạm tính</span></a></li>
+                                {% for item in cart_items %}
+                                <li>
+                                    <a href="{% if item.variant.product.slug %}{% url 'product_detail' item.variant.product.slug %}{% else %}{% url 'home' %}{% endif %}">
+                                        <span>{{ item.variant.product.name }}<small class="order-product-meta">Size {{ item.variant.size }}{% if item.variant.color %} · {{ item.variant.color }}{% endif %}</small></span>
+                                        <span class="middle">× {{ item.quantity }}</span>
+                                        <span class="last">{{ item.total_price|intcomma }}$</span>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            <ul class="list list_2">
+                                <li><a href="#"><span>Tạm tính</span><span>{{ total_amount|intcomma }}$</span></a></li>
+                                <li><a href="#"><span>Phí vận chuyển</span><span>Miễn phí</span></a></li>
+                                <li><a href="#"><span>Tổng cộng</span><span>{{ total_amount|intcomma }}$</span></a></li>
+                            </ul>
+                            <p class="small text-muted mb-0">Phí giao hàng hiện được miễn phí. Đơn hàng sẽ được thanh toán bằng tiền mặt khi nhận hàng.</p>
                         </div>
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
-    {% endif %}
+    </section>
 </div>
 {% endblock %}

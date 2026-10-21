@@ -1,230 +1,205 @@
 {% extends 'store/base.html' %}
-{% load humanize %}
+{% load static humanize %}
+
+{% block title %}{{ product.name }} - Shoes Store{% endblock %}
+{% block container_class %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .product-detail-page { padding-bottom: 60px; }
+    .product_image_area { padding: 165px 0 55px; }
+    .product-breadcrumb { margin-bottom: 34px; color: #888; font-size: 13px; }
+    .product-breadcrumb a { color: #777; }
+    .product-breadcrumb a:hover { color: #ffba00; }
+    .product-gallery { position: relative; padding: 28px; background: #f8f8f8; }
+    .product-gallery .s_Product_carousel { background: #fff; }
+    .product-gallery .single-prd-item { height: 470px; display: flex; align-items: center; justify-content: center; }
+    .product-gallery .single-prd-item img { width: 100%; height: 100%; object-fit: contain; }
+    .product-gallery .owl-dots { right: 12px; }
+    .product-gallery-single { width: 100%; height: 470px; object-fit: contain; background: #fff; }
+    .product-info { padding: 10px 0 10px 30px; }
+    .product-brand { margin-bottom: 10px; color: #888; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+    .product-info h1 { margin-bottom: 12px; color: #222; font-size: 30px; font-weight: 600; line-height: 1.25; }
+    .product-price { margin-bottom: 18px; color: #ff6c00; font-size: 27px; font-weight: 700; }
+    .product-meta { margin: 0; padding: 15px 0; border-top: 1px dotted #ddd; border-bottom: 1px dotted #ddd; list-style: none; }
+    .product-meta li { margin: 5px 0; color: #666; font-size: 14px; }
+    .product-meta li span { display: inline-block; width: 100px; color: #222; }
+    .product-meta li .availability-label { width: auto; color: #26834a; }
+    .product-info p.product-description { margin: 18px 0 25px; padding-top: 0; border-top: 0; color: #666; line-height: 1.8; white-space: pre-line; }
+    .variant-field { margin: 20px 0; }
+    .variant-title { display: block; margin-bottom: 10px; color: #222; font-size: 14px; font-weight: 600; }
+    .variant-options { display: flex; flex-wrap: wrap; gap: 9px; }
+    .variant-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .variant-options label { min-width: 48px; margin: 0; padding: 9px 13px; border: 1px solid #ddd; background: #fff; color: #333; cursor: pointer; text-align: center; transition: all .15s ease; }
+    .variant-options label:hover { border-color: #222; }
+    .variant-options input:checked + label { border-color: #222; background: #222; color: #fff; }
+    .variant-options input:focus-visible + label { outline: 2px solid #ffba00; outline-offset: 2px; }
+    .variant-options label.is-disabled { border-color: #eee; background: #f6f6f6; color: #aaa; cursor: not-allowed; text-decoration: line-through; }
+    .variant-stock { margin: 10px 0 0; color: #777; font-size: 13px; }
+    .product-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 26px; }
+    .product-actions button { min-height: 48px; border: 0; cursor: pointer; }
+    .product-actions button:disabled { cursor: not-allowed; opacity: .5; }
+    .product-actions .primary-btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; }
+    .product-actions .buy-now { padding: 0 24px; border: 1px solid #ddd; background: #fff; color: #222; font-weight: 500; text-transform: uppercase; }
+    .product-actions .buy-now:hover:not(:disabled) { border-color: #222; }
+    @media (max-width: 991px) {
+        .product_image_area { padding-top: 145px; }
+        .product-info { padding: 34px 0 0; }
+    }
+    @media (max-width: 575px) {
+        .product_image_area { padding: 125px 0 36px; }
+        .product-breadcrumb { margin-bottom: 20px; }
+        .product-gallery { padding: 12px; }
+        .product-gallery .single-prd-item, .product-gallery-single { height: 330px; }
+        .product-info h1 { font-size: 25px; }
+        .product-actions { align-items: stretch; flex-direction: column; }
+        .product-actions button { width: 100%; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5 mb-5">
-    <div class="product-detail-container mx-auto bg-white shadow-sm rounded-4 overflow-hidden border">
-        <div class="row g-0">
-            <div class="col-lg-5 col-md-6 p-4 bg-white d-flex align-items-center justify-content-center border-end">
-                <div class="product-image-wrapper">
-                {% if product_images %}
-                    <div id="productCarousel" class="carousel slide position-relative" data-bs-ride="carousel">
-                        <div class="carousel-inner">
+<div class="product-detail-page">
+    <section class="product_image_area">
+        <div class="container">
+            <nav class="product-breadcrumb" aria-label="Điều hướng">
+                <a href="{% url 'home' %}">Trang chủ</a>
+                <span class="lnr lnr-arrow-right mx-2" aria-hidden="true"></span>
+                <a href="{% url 'home' %}">Sản phẩm</a>
+                <span class="lnr lnr-arrow-right mx-2" aria-hidden="true"></span>
+                <span>{{ product.name }}</span>
+            </nav>
+
+            <div class="row s_product_inner align-items-center">
+                <div class="col-lg-6">
+                    <div class="product-gallery">
+                        {% if product_images|length > 1 %}
+                        <div class="s_Product_carousel">
                             {% for image_url in product_images %}
-                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                    <div class="image-zoom-area">
-                                        <img src="{{ image_url }}" class="img-fluid rounded product-main-image" alt="{{ product.name }}">
-                                    </div>
-                                </div>
+                            <div class="single-prd-item"><img src="{{ image_url }}" alt="{{ product.name }} - ảnh {{ forloop.counter }}"></div>
                             {% endfor %}
                         </div>
-                        {% if product_images|length > 1 %}
-                            <button class="carousel-control-prev custom-carousel-btn" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
-                            </button>
-                            <button class="carousel-control-next custom-carousel-btn" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
-                            <div class="d-flex justify-content-center flex-wrap gap-2 mt-3">
-                                {% for image_url in product_images %}
-                                    <img src="{{ image_url }}" class="thumbnail rounded" data-bs-target="#productCarousel" data-bs-slide-to="{{ forloop.counter0 }}" alt="Thumbnail {{ forloop.counter }}">
-                                {% endfor %}
-                            </div>
+                        {% elif product_images %}
+                        <img class="product-gallery-single" src="{{ product_images.0 }}" alt="{{ product.name }}">
+                        {% elif product.display_image %}
+                        <img class="product-gallery-single" src="{{ product.display_image }}" alt="{{ product.name }}">
+                        {% else %}
+                        <img class="product-gallery-single" src="{% static 'karma/img/cart.jpg' %}" alt="{{ product.name }}">
                         {% endif %}
                     </div>
-                {% else %}
-                    {% if product.display_image %}
-                        <img src="{{ product.display_image }}" class="img-fluid rounded product-main-image" alt="{{ product.name }}">
-                    {% else %}
-                        <img src="https://placehold.co/600x600?text=No+image" class="img-fluid rounded" alt="No image">
-                    {% endif %}
-                {% endif %}
-                <div class="p-3 bg-light rounded-4 mt-4">
-                    <h5 class="fw-bold mb-2">Mô tả sản phẩm</h5>
-                    <p class="text-secondary mb-0" style="line-height: 1.6; font-size: 0.95rem;">
-                        {{ product.description|default:'Chưa có mô tả.' }}
-                    </p>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="s_product_text product-info">
+                        {% if product.brand %}<div class="product-brand">{{ product.brand.name }}</div>{% endif %}
+                        <h1>{{ product.name }}</h1>
+                        <div class="product-price">{{ product.price|intcomma }}$</div>
+
+                        <ul class="product-meta">
+                            {% if product.category %}<li><span>Thể loại</span>{{ product.category.name }}</li>{% endif %}
+                            <li><span>Tình trạng</span><span id="availability-label" class="availability-label">{% if has_stock %}Còn hàng{% else %}Tạm hết hàng{% endif %}</span></li>
+                        </ul>
+
+                        {% if product.description %}
+                        <p class="product-description">{{ product.description }}</p>
+                        {% endif %}
+
+                        <form id="addToCartForm" method="get" action="">
+                            <div class="variant-field">
+                                <span class="variant-title">Chọn màu</span>
+                                <div class="variant-options" id="color-options">
+                                    {% for color in colors %}
+                                    <input type="radio" class="color-picker" name="color_select" id="color-{{ forloop.counter }}" value="{{ color }}" {% if color == default_color %}checked{% endif %} required>
+                                    <label for="color-{{ forloop.counter }}">{{ color }}</label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="variant-field">
+                                <span class="variant-title">Chọn kích cỡ</span>
+                                <div class="variant-options" id="size-options">
+                                    {% for size in sizes %}
+                                    <input type="radio" class="size-picker" name="variant_select" id="variant-size-{{ forloop.counter }}" value="{{ size }}" data-size="{{ size }}" disabled required>
+                                    <label class="size-label is-disabled" for="variant-size-{{ forloop.counter }}">{{ size }}</label>
+                                    {% endfor %}
+                                </div>
+                                <p id="variant-stock" class="variant-stock" aria-live="polite">Chọn màu để xem size còn hàng.</p>
+                            </div>
+
+                            <div class="product-actions">
+                                <button type="submit" id="addBtn" class="primary-btn" disabled><i class="ti-bag" aria-hidden="true"></i> Thêm vào giỏ</button>
+                                <button type="submit" id="buyNowBtn" class="buy-now" name="next" value="checkout" disabled>Mua ngay</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="col-md-6 p-5">
-            <div class="mb-2 text-uppercase text-muted small fw-bold tracking-wider">
-                {{ product.brand }}
-            </div>
-            <h1 class="fw-bold mb-3 display-6 text-dark">{{ product.name }}</h1>
-            
-            <div class="d-flex align-items-center mb-4">
-                <div class="fs-2 fw-bold text-danger me-3">
-                    {{ product.price|intcomma }}$
-                </div>
-                {% if product.variants.exists %}
-                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
-                    <i class="bi bi-check2-circle me-1"></i> Còn hàng
-                </span>
-                {% else %}
-                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 rounded-pill">
-                    Tạm hết hàng
-                </span>
-                {% endif %}
-            </div>
-
-            <form id="addToCartForm" method="GET" action="">
-                <div class="mb-4">
-                    <label class="fw-bold mb-2 d-block">Chọn màu:</label>
-                    <div class="d-flex flex-wrap gap-2" id="color-options">
-                        {% for color in colors %}
-                            <input type="radio" class="btn-check color-picker" name="color_select" id="color-{{ forloop.counter }}" value="{{ color }}" required>
-                            <label class="btn btn-outline-dark px-3 py-2 text-center" for="color-{{ forloop.counter }}">{{ color }}</label>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="fw-bold mb-2 d-block">Chọn kích cỡ:</label>
-                    <div class="d-flex flex-wrap gap-2" id="size-options">
-                        {% for size in sizes %}
-                            <input type="radio" class="btn-check size-picker" 
-                                   name="variant_select" 
-                                   id="variant-size-{{ forloop.counter }}" 
-                                   value="{{ size }}" 
-                                   data-size="{{ size }}" 
-                                   disabled required>
-                            <label class="btn btn-outline-dark px-3 py-2 text-center size-label disabled" for="variant-size-{{ forloop.counter }}">
-                                <span class="d-block">{{ size }}</span>
-                                <span class="stock-number small text-muted" style="display: block; min-height: 1.1rem;"></span>
-                            </label>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="d-flex gap-3">
-                    <button type="submit" id="addBtn" class="btn btn-outline-dark btn-lg flex-grow-1 py-3 fw-bold rounded-3" disabled>
-                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
-                    </button>
-                    <button type="submit" id="buyNowBtn" name="next" value="checkout" class="btn btn-danger btn-lg flex-grow-1 py-3 fw-bold rounded-3 shadow-sm" disabled>
-                        Mua ngay
-                    </button>
-                </div>
-            </form>
-
-        </div>
-    </div>
 </div>
 
+{{ variant_data|json_script:'variant-data' }}
 <script>
-    const colorInputs = document.querySelectorAll('.color-picker');
-    const sizeInputs = document.querySelectorAll('.size-picker');
-    const addBtn = document.getElementById('addBtn');
-    const buyNowBtn = document.getElementById('buyNowBtn');
-    const form = document.getElementById('addToCartForm');
-
-    const variantData = {{ variant_data|safe }};
+(function () {
+    var colorInputs = document.querySelectorAll('.color-picker');
+    var sizeInputs = document.querySelectorAll('.size-picker');
+    var addBtn = document.getElementById('addBtn');
+    var buyNowBtn = document.getElementById('buyNowBtn');
+    var form = document.getElementById('addToCartForm');
+    var stockMessage = document.getElementById('variant-stock');
+    var availabilityLabel = document.getElementById('availability-label');
+    var variantData = JSON.parse(document.getElementById('variant-data').textContent);
 
     function updateSizeOptions(selectedColor) {
-        const colorVariants = variantData[selectedColor] || {};
+        var colorVariants = variantData[selectedColor] || {};
+        var hasAvailableSize = false;
 
-        sizeInputs.forEach(input => {
-            const size = input.dataset.size;
-            const label = document.querySelector(`label[for='${input.id}']`);
-            const stockSpan = label.querySelector('.stock-number');
-            const variant = colorVariants[size];
+        sizeInputs.forEach(function (input) {
+            var size = input.dataset.size;
+            var label = document.querySelector('label[for="' + input.id + '"]');
+            var variant = colorVariants[size];
+            input.checked = false;
 
             if (variant && variant.stock > 0) {
                 input.disabled = false;
                 input.dataset.url = variant.url;
-                stockSpan.textContent = `(${variant.stock})`;
-                stockSpan.style.display = 'block';
-                label.classList.remove('disabled');
-                label.classList.add('btn-outline-dark');
-            } else if (variant) {
-                input.disabled = true;
-                input.checked = false;
-                input.dataset.url = '';
-                stockSpan.textContent = '(Hết hàng)';
-                stockSpan.style.display = 'block';
-                label.classList.remove('btn-outline-dark');
-                label.classList.add('disabled');
+                label.classList.remove('is-disabled');
+                label.title = 'Còn ' + variant.stock + ' sản phẩm';
+                hasAvailableSize = true;
             } else {
                 input.disabled = true;
-                input.checked = false;
                 input.dataset.url = '';
-                stockSpan.textContent = '';
-                stockSpan.style.display = 'block';
-                label.classList.remove('btn-outline-dark');
-                label.classList.add('disabled');
+                label.classList.add('is-disabled');
+                label.title = variant ? 'Hết hàng' : 'Không có size này';
             }
         });
 
+        form.action = '';
         addBtn.disabled = true;
         buyNowBtn.disabled = true;
-        form.action = '';
+        stockMessage.textContent = hasAvailableSize ? 'Chọn size phù hợp để tiếp tục.' : 'Màu này hiện đã hết hàng.';
+        availabilityLabel.textContent = hasAvailableSize ? 'Còn hàng' : 'Hết hàng';
     }
 
-    colorInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            updateSizeOptions(this.value);
-        });
+    colorInputs.forEach(function (input) {
+        input.addEventListener('change', function () { updateSizeOptions(this.value); });
     });
 
-    sizeInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            form.action = this.dataset.url;
+    var initialColor = document.querySelector('.color-picker:checked');
+    if (initialColor) { updateSizeOptions(initialColor.value); }
+
+    sizeInputs.forEach(function (input) {
+        input.addEventListener('change', function () {
+            var colorInput = document.querySelector('.color-picker:checked');
+            var variant = colorInput && variantData[colorInput.value] ? variantData[colorInput.value][this.dataset.size] : null;
+            if (!variant || variant.stock <= 0) { return; }
+            form.action = variant.url;
             addBtn.disabled = false;
             buyNowBtn.disabled = false;
+            stockMessage.textContent = 'Còn ' + variant.stock + ' sản phẩm trong kho.';
         });
     });
-
-    const carousel = document.getElementById('productCarousel');
-    if (carousel) {
-        carousel.addEventListener('slid.bs.carousel', function (event) {
-            const thumbnails = document.querySelectorAll('.thumbnail');
-            thumbnails.forEach((thumb, index) => {
-                if (index === event.to) {
-                    thumb.classList.add('active-thumbnail');
-                } else {
-                    thumb.classList.remove('active-thumbnail');
-                }
-            });
-        });
-
-        document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
-            thumb.addEventListener('click', function() {
-                const carouselInstance = bootstrap.Carousel.getInstance(carousel);
-                carouselInstance.to(index);
-            });
-        });
-    }
+})();
 </script>
-
-<style>
-    .product-detail-container { max-width: 960px; }
-    .product-image-wrapper { overflow: visible; border-radius: 18px; background: #f8f9fa; width: 100%; max-width: 420px; margin: 0 auto; }
-    .image-zoom-area { width: 100%; height: 420px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 12px; }
-    .product-main-image { max-width: 100%; max-height: 420px; object-fit: contain; width: auto; height: auto; transition: none; }
-    
-    .custom-carousel-btn {
-        width: 35px;
-        height: 35px;
-        background-color: rgba(0, 0, 0, 0.4);
-        border-radius: 50%;
-        top: 50%;
-        transform: translateY(-50%);
-        margin: 0 10px;
-    }
-    .custom-carousel-btn:hover { background-color: rgba(0, 0, 0, 0.5); }
-
-    .carousel-control-prev { left: -20px; }
-    .carousel-control-next { right: -20px; }
-
-    .thumbnail { width: 50px; height: 50px; object-fit: cover; cursor: pointer; border: 1px solid #ddd; transition: transform 0.2s ease, border-color 0.2s ease; }
-    .thumbnail:hover { transform: scale(1.05); }
-    .active-thumbnail { border-color: #0d6efd !important; }
-    .btn-outline-dark.disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
-    .size-label.disabled { background-color: #f8f9fa; border-color: #ddd; color: #6c757d; }
-    .stock-number { display: block; margin-top: 0.25rem; }
-    .btn-check:checked + .btn-outline-dark { background-color: #212529; color: #fff; border-color: #212529; }
-    .btn-check:checked + .btn-outline-dark .stock-number { color: #e9ecef !important; }
-</style>
 {% endblock %}
